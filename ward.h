@@ -1,6 +1,8 @@
 #ifndef WARD_H_
 #define WARD_H_
 
+
+#include <falconn/lsh_nn_table.h>
 #include "hierarchical_clustering.h"
 #include <string>
 #include <vector>
@@ -8,7 +10,7 @@
 #include <unordered_map>
 
 typedef std::pair<std::string, std::string> pr;
-//
+
  struct pairhash {
 private:
    const std::size_t num = 65537;
@@ -20,14 +22,12 @@ public:
 };
 
 class ward : public hierarchical_clustering {
-
 public:
     ward(const std::string);
     void run();
-
 private:
   std::vector<point> M; // dissimilarity matrix,
-  //std::unordered_map<pr, double> mp;
+  std::unordered_map<pr, double, pairhash> mp;
 };
 
 #endif
