@@ -1,22 +1,25 @@
-#include "hc.h"
+#ifndef WARD_H_
+#define WARD_H_
+
+#include "hierarchical_clustering.h"
 #include <string>
 #include <vector>
 #include <functional>
 #include <unordered_map>
 
 typedef std::pair<std::string, std::string> pr;
-
-struct pairhash {
+//
+ struct pairhash {
 private:
-  const std::size_t num = 65537;
-  std::hash<std::string> hash_fn;
+   const std::size_t num = 65537;
+   std::hash<std::string> hash_fn;
 public:
-  std::size_t operator()(const std::pair<std::string, std::string> &x) const {
-    return (hash_fn (x.first ) * num) ^ (hash_fn(x.second));
-  }
+   std::size_t operator()(const std::pair<std::string, std::string> &x) const {
+     return (hash_fn (x.first ) * num) ^ (hash_fn(x.second));
+   }
 };
 
-class ward : public HC {
+class ward : public hierarchical_clustering {
 
 public:
     ward(const std::string);
@@ -24,5 +27,7 @@ public:
 
 private:
   std::vector<point> M; // dissimilarity matrix,
-  std::unordered_map<pr, double> mp;
+  //std::unordered_map<pr, double> mp;
 };
+
+#endif

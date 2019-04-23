@@ -5,10 +5,10 @@
 *
 */
 
-ward::ward(const std::string file_name) : HC(file_name) {}
+ward::ward(const std::string file_name) : hierarchical_clustering(file_name) {}
 
 void ward::run() {
-  uint n = pts.size() / dimension;
+  uint n = pts.size(); // dimension;
   M = std::vector<point>(n, std::vector<double>(n));
   for(uint i = 0; i < n; ++i) {
     M[i][i] = 0;
@@ -16,5 +16,4 @@ void ward::run() {
       M[i][j] = M[j][i] = distance(i, j);
     }
   }
-
 }
