@@ -15,17 +15,13 @@ class HierarchicalClustering:
       self.points = points
       self.n, self.dimension = points.shape
 
-
-    def merge(self, mu_a, mu_b, size_a, size_b):
-        mu = np.empty((1, self.dimension), float)
+    def __merge(self, mu_a, mu_b, size_a, size_b):
         den = size_a + size_b
         coeff_a = float(size_a)/den
         coeff_b = float(size_b)/den
-        for i in range(self.dimension):
-            mu = coeff_a * mu_a[0, i] + coeff_b * mu_b[0, i]
-        return mu
+        return  coeff_a * mu_a + coeff_b * mu_b
 
-
+    del build_hierarchy(): pass
 
 #data = numpy.random.randn(10000, 100).astype(numpy.float32)
 #a , _ = data.shape
