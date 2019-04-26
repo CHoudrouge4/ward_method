@@ -4,8 +4,7 @@ from numpy.random import *
 from pyflann import *
 
 dataset = rand(10000, 128)
-testset = rand(1000, 128)
-
+testset = rand(1, 128)
 
 def print_name():
    print 'hello wards'
@@ -21,14 +20,17 @@ class HierarchicalClustering:
         coeff_b = float(size_b)/den
         return  coeff_a * mu_a + coeff_b * mu_b
 
-    del build_hierarchy(): pass
+    def build_hierarchy():
+        pass
 
 #data = numpy.random.randn(10000, 100).astype(numpy.float32)
 #a , _ = data.shape
 #print a
 #hc = HierarchicalClustering(data)
 
-#flann = FLANN()
-#params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
+flann = FLANN()
+params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
 #print params
-#result, dists = flann.nn_index(testset, 5, checks=params['checks']);
+result, dists = flann.nn_index(testset, 1, checks=params['checks']);
+
+print result, "distance ", dists
