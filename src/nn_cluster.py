@@ -1,7 +1,7 @@
 import nmslib
 import math
 import numpy as np
-import pyflann as pyf
+import pyflann
 
 #flann = FLANN()
 #params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
@@ -14,13 +14,15 @@ class nnCluster:
         This class is to compute the nearest neighbour cluster
     """
 
-    def __init__(self, size, points, epsilon, method = 'hnsw', space = 'cosinesimil'):
+    def __init__(self, points, epsilon, method = 'hnsw', space = 'cosinesimil'):
         self.size, self.dimension = points.shape
         self.epsilon = epsilon
-        self.number_of_data_structure = int(math.ceil(math.log(size, 1 + epsilon)))
-        flann = FLANN()
+        self.number_of_data_structure = int(math.ceil(math.log(self.size, 1 + epsilon)))
+        self.nn_data_structure = list()
+        pyf = pyflann.FLANN()
+        empty = np.empty(self.dimension)
         for i in range(self.number_of_data_structure):
-            flann = flann.build_index([], algorithm='autotuned', target_precision = 0.9, log_level ="info")
+            flann = pyf.build_index(empty, algorithm='autotuned', target_precision = 0.9, log_level ="info")
             self.nn_data_structure.append(flann)
         self.nn_data_structure[0].add_points(points)
 
