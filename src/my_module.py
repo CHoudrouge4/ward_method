@@ -20,6 +20,7 @@ class HierarchicalClustering:
         coeff_b = float(size_b)/den
         return  coeff_a * mu_a + coeff_b * mu_b
 
+    # here we want to implement the main algorithm
     def build_hierarchy():
         pass
 

@@ -18,8 +18,9 @@ class nnCluster:
         self.size, self.dimension = points.shape
         self.epsilon = epsilon
         self.number_of_data_structure = int(math.ceil(math.log(size, 1 + epsilon)))
+        flann = FLANN()
         for i in range(self.number_of_data_structure):
-            flann = flan.build_index([], algorithm='autotuned', target_precision = 0.9, log_level "info")
+            flann = flann.build_index([], algorithm='autotuned', target_precision = 0.9, log_level ="info")
             self.nn_data_structure.append(flann)
         self.nn_data_structure[0].add_points(points)
 
@@ -28,8 +29,8 @@ class nnCluster:
         coef = float(coef)/(size_a + size_b)
         return coef * dist
 
-    def query(self, q_cluster, q_size): pass
-        result = np.empty(self.dimension)
+    def query(self, q_cluster, q_size):
+        result = numpy.empty(self.dimension)
         min_distance = float("inf")
         for i in range(len(self.nn_data_structure)):
             tmp, dist = ds[i].nn_index(q_cluster)
