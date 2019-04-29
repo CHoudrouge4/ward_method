@@ -1,32 +1,38 @@
-import nmslib
 import math
-import numpy as np
-import pyflann
+import numpy
+from pyflann import *
+from numpy.random import *
 
-#flann = FLANN()
-#params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
-#print params
-#result, dists = flann.nn_index(testset, 5, checks=params['checks']);
+# flann = FLANN()
+# params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
+# print params
+# result, dists = flann.nn_index(testset, 5, checks=params['checks']);
 
-class nnCluster:
+class NNCluster:
 
     """
         This class is to compute the nearest neighbour cluster
     """
 
-    def __init__(self, points, epsilon, method = 'hnsw', space = 'cosinesimil'):
+    def __init__(self, points, epsilon, method='hnsw', space='cosinesimil'):
+        dataset = rand(100, 128)
         self.size, self.dimension = points.shape
         self.epsilon = epsilon
         self.number_of_data_structure = int(math.ceil(math.log(self.size, 1 + epsilon)))
         self.nn_data_structure = list()
-        pyf = pyflann.FLANN()
-        empty = np.empty(self.dimension)
+        self.method = method
+        self.space = space
+        # empty = np.empty(self.dimension)
         for i in range(self.number_of_data_structure):
-            flann = pyf.build_index(empty, algorithm='autotuned', target_precision = 0.9, log_level ="info")
-            self.nn_data_structure.append(flann)
-        self.nn_data_structure[0].add_points(points)
+            self.nn_data_structure.append(FLANN())
+            self.nn_data_structure[i].build_index(dataset)
 
-    def __distance(self, mu_a, size_a, mu_b, size_b, dist):
+    # ind.add_points(dataset, 2.0)
+    # pyf = pyf.build_index(empty, algorithm='autotuned', target_precision = 0.9, log_level ="info")
+    # self.nn_data_structure[0].add_points(points)
+
+    @staticmethod
+    def __distance(self, size_a, size_b, dist):
         coef = size_a * size_b
         coef = float(coef)/(size_a + size_b)
         return coef * dist
@@ -35,18 +41,18 @@ class nnCluster:
         result = numpy.empty(self.dimension)
         min_distance = float("inf")
         for i in range(len(self.nn_data_structure)):
-            tmp, dist = ds[i].nn_index(q_cluster)
+            tmp, dist = self.nn_data_structure[i].nn_index(q_cluster)
             size_tmp = (1 + self.epsilon) ** i
-            distance = __distance(q_cluster, q_size, tmp, size_tmp, dist)
+            distance = self.__distance(q_size, size_tmp, dist)
             if dist[0] < min_distance:
                 min_distance = distance
                 result = tmp
         return result, min_distance
 
     def add(self, cluster, size):
-        index = math.ceil(math.log(size ,1 + self.epsilon))
-        self.nn_data_structure[index].add.points([cluster])
+        i = math.ceil(math.log(size, 1 + self.epsilon))
+        self.nn_data_structure[i].add_points([cluster])
 
     def delete(self, cluster, size):
-        index = math.ceil(math.log(size ,1 + self.epsilon))
-        self.nn_data_structure[index].add.remove_point([cluster])
+        i = math.ceil(math.log(size, 1 + self.epsilon))
+        self.nn_data_structure[i].remove_point([cluster])

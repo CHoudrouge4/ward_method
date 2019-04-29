@@ -1,0 +1,10 @@
+from pyflann import  *
+from numpy import  *
+from numpy.random import  *
+
+data = rand(5, 2)
+
+print (data)
+
+flann = FLANN()
+params = flann.build_index(data)
