@@ -20,6 +20,7 @@ class NNCluster:
         self.nn_data_structure = list()
         self.method = method
         self.space = space
+        self.points = points
         # empty = np.empty(self.dimension)
         for i in range(self.number_of_data_structure):
             self.nn_data_structure.append(FLANN())
@@ -39,15 +40,22 @@ class NNCluster:
         return coef * dist
 
     def query(self, q_cluster, q_size):
-        result = numpy.empty(self.dimension)
+        print("dimension", self.dimension)
+        result = numpy.zeros(self.dimension)
         min_distance = float("inf")
         for i in range(len(self.nn_data_structure)):
+            if not self.built[i]:
+                continue
             tmp, dist = self.nn_data_structure[i].nn_index(q_cluster)
-            size_tmp = (1 + self.epsilon) ** i
+            size_tmp = math.floor((1 + self.epsilon) ** i)
             distance = self.__distance(q_size, size_tmp, dist[0])
-            if dist[0] < min_distance:
+            print("the tmp result is ", self.points[tmp[0]], " ", dist[0])
+            assert tmp[0] >= 0 and tmp[0] < self.points.shape[0]
+            if min_distance > distance:
+                print("inside the if statement")
                 min_distance = distance
-                result = tmp
+                result = self.points[tmp[0]]
+            assert result.size == self.dimension
         return result, min_distance
 
     def add_cluster(self, cluster, size):
@@ -57,6 +65,6 @@ class NNCluster:
         else:
             self.nn_data_structure[i].add_points(cluster)
 
-    def delete_cluster(self, cluster, size):
+    def delete_cluster(self, idx, size):
         i = math.floor(math.log(size, 1 + self.epsilon))
-        self.nn_data_structure[i].remove_point(cluster)
+        self.nn_data_structure[i].remove_point(idx)
