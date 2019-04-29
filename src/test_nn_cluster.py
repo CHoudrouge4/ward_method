@@ -1,5 +1,5 @@
 from numpy import *
-from src.nn_cluster import NNCluster, print_hello
+from src.nn_cluster import NNCluster
 from numpy.random import *
 
 dataset = rand(10000, 128)
