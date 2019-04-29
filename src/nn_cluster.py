@@ -5,8 +5,6 @@ from pyflann import *
 # params = flann.build_index(dataset, algorithm='autotuned', target_precision = 0.9, log_level = "info");
 # print params
 # result, dists = flann.nn_index(testset, 5, checks=params['checks']);
-def print_hello():
-    print('hello')
 
 
 class NNCluster:
@@ -15,7 +13,7 @@ class NNCluster:
         This class is to compute the nearest neighbour cluster
     """
 
-    def __init__(self, points, epsilon, method='hnsw', space='cosinesimil'):
+    def __init__(self, points, epsilon, gamma=0.9, method='hnsw', space='cosinesimil'):
         self.size, self.dimension = points.shape
         self.epsilon = epsilon
         self.number_of_data_structure = int(math.ceil(math.log(self.size, 1 + epsilon)))
