@@ -32,6 +32,8 @@
 *.out
 *.app
 
-.xml
-.iml
-.pyc
+*.xml
+*.iml
+*.pyc
+
+.idea
