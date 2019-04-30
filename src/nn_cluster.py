@@ -21,10 +21,11 @@ class NNCluster:
         self.method = method
         self.space = space
         self.points = points
+        self.gamma = gamma
         # empty = np.empty(self.dimension)
         for i in range(self.number_of_data_structure):
             self.nn_data_structure.append(FLANN())
-        self.nn_data_structure[0].build_index(points)
+        self.nn_data_structure[0].build_index(points, algorithm='autotuned', target_precision=gamma)
         self.built = numpy.zeros(len(self.nn_data_structure), bool)
         assert self.built.size == len(self.nn_data_structure)
         self.built[0] = True
@@ -40,7 +41,7 @@ class NNCluster:
         return coef * dist
 
     def query(self, q_cluster, q_size):
-        print("dimension", self.dimension)
+        # print("dimension", self.dimension)
         result = numpy.zeros(self.dimension)
         min_distance = float("inf")
         for i in range(len(self.nn_data_structure)):
@@ -49,10 +50,10 @@ class NNCluster:
             tmp, dist = self.nn_data_structure[i].nn_index(q_cluster)
             size_tmp = math.floor((1 + self.epsilon) ** i)
             distance = self.__distance(q_size, size_tmp, dist[0])
-            print("the tmp result is ", self.points[tmp[0]], " ", dist[0])
-            assert tmp[0] >= 0 and tmp[0] < self.points.shape[0]
+            # print("the tmp result is ", self.points[tmp[0]], " ", dist[0])
+            assert tmp[0] >= 0 < self.points.shape[0]
             if min_distance > distance:
-                print("inside the if statement")
+                # print("inside the if statement")
                 min_distance = distance
                 result = self.points[tmp[0]]
             assert result.size == self.dimension
