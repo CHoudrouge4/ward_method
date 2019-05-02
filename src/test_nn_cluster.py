@@ -20,7 +20,7 @@ def test_accuracy(points, q_size, nbiterations, epsilon, gamma):
     _, dimension = points.shape
     for i in range(nbiterations):
         q = rand(1, dimension)
-        result, _ = nnc.query(q, q_size)
+        result, _, _ = nnc.query(q, q_size)
         res = brute_force(data, q)
         assert (res == result).all()
 

@@ -44,6 +44,7 @@ class NNCluster:
         # print("dimension", self.dimension)
         result = numpy.zeros(self.dimension)
         min_distance = float("inf")
+        result_size = 1
         for i in range(len(self.nn_data_structure)):
             if not self.built[i]:
                 continue
@@ -56,8 +57,9 @@ class NNCluster:
                 # print("inside the if statement")
                 min_distance = distance
                 result = self.points[tmp[0]]
+                result_size = i
             assert result.size == self.dimension
-        return result, min_distance
+        return result, min_distance, result_size
 
     def add_cluster(self, cluster, size):
         i = math.floor(math.log(size, 1 + self.epsilon))
