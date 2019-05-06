@@ -18,6 +18,7 @@ class NNCluster:
         self.epsilon = epsilon
         self.number_of_data_structure = int(math.ceil(math.log(self.size, 1 + epsilon)))
         self.nn_data_structure = list()
+        self.params = list()
         self.method = method
         self.space = space
         self.points = points
@@ -25,7 +26,8 @@ class NNCluster:
         # empty = np.empty(self.dimension)
         for i in range(self.number_of_data_structure):
             self.nn_data_structure.append(FLANN())
-        self.nn_data_structure[0].build_index(points, algorithm='autotuned', target_precision=gamma)
+            self.params.append(object)
+        self.params.append(self.nn_data_structure[0].build_index(points, algorithm='autotuned', target_precision=gamma))
         self.built = numpy.zeros(len(self.nn_data_structure), bool)
         assert self.built.size == len(self.nn_data_structure)
         self.built[0] = True
@@ -48,7 +50,8 @@ class NNCluster:
         for i in range(len(self.nn_data_structure)):
             if not self.built[i]:
                 continue
-            tmp, dist = self.nn_data_structure[i].nn_index(q_cluster)
+            tmp, dist = self.nn_data_structure[i].nn_index(q_cluster, checks=self.params[i]["checks"])
+            print(type(tmp), tmp)
             size_tmp = math.floor((1 + self.epsilon) ** i)
             distance = self.__distance(q_size, size_tmp, dist[0])
             # print("the tmp result is ", self.points[tmp[0]], " ", dist[0])
@@ -56,6 +59,7 @@ class NNCluster:
             if min_distance > distance:
                 # print("inside the if statement")
                 min_distance = distance
+                print (tmp[0], ' ', len(self.points))
                 result = self.points[tmp[0]]
                 result_size = i
             assert result.size == self.dimension
@@ -64,7 +68,7 @@ class NNCluster:
     def add_cluster(self, cluster, size):
         i = math.floor(math.log(size, 1 + self.epsilon))
         if not self.built[i]:
-            self.nn_data_structure[i].build_index(cluster)
+            self.params[i] = self.nn_data_structure[i].build_index(cluster)
         else:
             self.nn_data_structure[i].add_points(cluster)
 

@@ -33,8 +33,8 @@ def test_add(points, nbiterations, epsilon, gamma):
         p_size = random.randint(1, point_size)
         nnc.add_cluster(p, p_size)
 
-data_size = randint(10, 100)
-data_dimension = randint(1, 200)
+"""data_size = randint(10, 100)
+data_dimension = 2 # randint(1, 200)
 data = rand(data_size, data_dimension)
 epsilon = random.uniform(0.1, 1)
 number_buckets = int(math.ceil(math.log(data_size, 1 + epsilon)))
@@ -43,3 +43,5 @@ query_size = 1 #random.randint(1, number_buckets)
 nb_iterations = random.randint(100, 10000)
 # test_accuracy(data, query_size, nb_iterations, epsilon, gamma)
 test_add(data, nb_iterations, epsilon, gamma)
+"""
+

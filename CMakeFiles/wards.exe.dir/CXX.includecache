@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hussein/projects/m2_thesis/ward_method/cpp/hierarchical_clustering.cc
+hierarchical_clustering.h
+/home/hussein/projects/m2_thesis/ward_method/cpp/hierarchical_clustering.h
+fstream
+-
+cmath
+-
+
+/home/hussein/projects/m2_thesis/ward_method/cpp/main.cc
+iostream
+-
+
+/home/hussein/projects/m2_thesis/ward_method/cpp/nn_cluster.cc
+
+/home/hussein/projects/m2_thesis/ward_method/cpp/ward.cc
+ward.h
+/home/hussein/projects/m2_thesis/ward_method/cpp/ward.h
+
+include/hierarchical_clustering.h
+vector
+-
+string
+-
+
+include/ward.h
+falconn/lsh_nn_table.h
+-
+hierarchical_clustering.h
+include/hierarchical_clustering.h
+string
+-
+vector
+-
+functional
+-
+unordered_map
+-
+

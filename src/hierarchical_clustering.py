@@ -23,7 +23,7 @@ class HierarchicalClustering:
     def min_distance(self):
         min_dis = float("inf")
         for i in range(self.n):
-            _, dist = self.nnc.query(self.points[i], 1)
+            _, dist, __ = self.nnc.query(self.points[i], 1)
             min_dis = min(dist, min_dis)
         return min_dis
 

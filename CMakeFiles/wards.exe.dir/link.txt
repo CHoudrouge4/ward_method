@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -Wextra -g -O3   CMakeFiles/wards.exe.dir/cpp/hierarchical_clustering.cc.o CMakeFiles/wards.exe.dir/cpp/main.cc.o CMakeFiles/wards.exe.dir/cpp/nn_cluster.cc.o CMakeFiles/wards.exe.dir/cpp/ward.cc.o  -o wards.exe 

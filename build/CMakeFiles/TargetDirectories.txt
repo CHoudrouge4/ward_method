@@ -1,0 +1,3 @@
+/home/hussein/projects/m2_thesis/ward_method/build/CMakeFiles/rebuild_cache.dir
+/home/hussein/projects/m2_thesis/ward_method/build/CMakeFiles/tst.dir
+/home/hussein/projects/m2_thesis/ward_method/build/CMakeFiles/edit_cache.dir
