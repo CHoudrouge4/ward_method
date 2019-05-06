@@ -2,7 +2,7 @@
 #define WARD_H_
 
 
-#include <falconn/lsh_nn_table.h>
+#include "/home/hussein/projects/flann/flann/src/cpp/flann/flann.hpp"
 #include "hierarchical_clustering.h"
 #include <string>
 #include <vector>

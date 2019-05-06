@@ -21,11 +21,10 @@ print("query for 0 ", res, " ", dis)
 print("add zero")
 flann.add_points(data[0])
 
-
 res, dis = flann.nn_index(data[0])
 print("query for 0 ", res, " ", dis)
 print("remove ", res[0])
-flann.remove_point(res[0]) # substract the number of |add - remove|
+flann.remove_point( 5 - 1) # substract the number of |add - remove|
 
 res, dis = flann.nn_index(data[0])
 print("query for 0 ", res, " ", dis)
