@@ -1,3 +1,0 @@
-/home/hussein/projects/m2_thesis/ward_method/CMakeFiles/rebuild_cache.dir
-/home/hussein/projects/m2_thesis/ward_method/CMakeFiles/wards.exe.dir
-/home/hussein/projects/m2_thesis/ward_method/CMakeFiles/edit_cache.dir
