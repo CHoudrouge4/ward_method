@@ -24,6 +24,7 @@ public:
 class ward : public hierarchical_clustering {
 public:
     ward(const std::string);
+    flann::Matrix<float> dataset;
     void run();
 private:
   std::vector<point> M; // dissimilarity matrix,
