@@ -55,7 +55,6 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   return std::make_tuple(res, min_distance, res_size);
 }
 
-
 void nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
       int idx = (int) floor(log_base(cluster_size, 1 + epsilon));
       if (!build[idx])
@@ -67,4 +66,12 @@ void nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
 void nnCluster::delete_cluster(int idx, int size) {
       int i = (int) floor(log_base(size, 1 + epsilon));
       nn_data_structures[i].removePoint(idx);
+}
+
+float * nnCluster::get_point(int idx, int size) {
+  int i = (int) floor(log_base(size, 1 + epsilon));
+  if(build[i])
+    return nn_data_structures[i].getPoint(idx);
+  else
+    return nullptr;
 }

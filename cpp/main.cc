@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <random>
+#include <dlfcn.h>
 
 float * read_file(const std::string file_name, int &n, int &m) {
   std::ifstream in(file_name);
@@ -52,6 +53,8 @@ void print_matrix (flann::Matrix<float> &dataset, int n, int d) {
   }
 }
 
+extern "C" typedef double (*func_t)(int n, int d, void * array);
+
 int main () {
 
   int n = 5;
@@ -70,7 +73,13 @@ int main () {
      std::cout << "1d : " << pt_[i] << '\n';
   }
 
+   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
+   func_t func = (func_t)dlsym( lib, "radius_min_circle");
+   double radius = func(n, d, (void *) result);
+   std::cout << "radius " << radius << '\n';
+
   flann::Matrix<float> query(pt_.data(), 1, d);
+
   std::vector<std::vector<int>> indices;
   std::vector<std::vector<float>> dists;
 

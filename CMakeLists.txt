@@ -14,4 +14,4 @@ set(CMAKE_CXX_FLAGS " -Wextra -g -O3")
 
 add_executable(wards.exe ${SOURCES})
 
-target_link_libraries(wards.exe  -llz4 -lhdf5)
+target_link_libraries(wards.exe  -llz4 -lhdf5 /home/hussein/projects/m2_thesis/ward_method/lib/librms.so -ldl)
