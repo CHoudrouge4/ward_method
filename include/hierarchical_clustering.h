@@ -1,5 +1,8 @@
+#pragma once
 #include <vector>
 #include <string>
+#include <unordered_set>
+#include <unordered_map>
 #include "nn_cluster.h"
 #define x(i) 2 * i
 #define y(i) 2 * i + 1
@@ -8,6 +11,7 @@ typedef std::vector<double> point;
 typedef unsigned int uint;
 
 class hierarchical_clustering {
+
 private:
   int dimension;
   int size;
@@ -18,6 +22,9 @@ private:
   double max_dist;
   double min_dist;
   double beta;
+  std::unordered_set<int> unmerged_clusters;
+  std::vector<int> pts_index;
+  std::unordered_map<int, int> index_weight;
 
   double compute_min_dist();
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);

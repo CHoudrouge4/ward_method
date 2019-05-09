@@ -5,7 +5,6 @@
 #include <limits>
 #include <tuple>
 
-
 //  TODO:
 // check the float and double compatibility
 
@@ -37,6 +36,10 @@ double hierarchical_clustering::compute_min_dist() {
       auto t = nnc.query(res, 1);
       nnc.add_cluster(res, 1);
       min_dis = std::min(std::get<1>(t), min_dis);
+      t = nnc.query(res, 1);
+      unmerged_clusters.insert (std::get<0>(t));
+      pts_index[i] = std::get<0>(t);
+      index_weight[std::get<0>(t)] = 1;
   }
   return min_dis;
 }
@@ -53,15 +56,32 @@ float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, i
 }
 
 void hierarchical_clustering::build_hierarchy() {
+  // we want to have a list of the unmerged value
+
   float merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i);
-    for (int j = 0; j < size; ++j) {
-      float * res_ = nnc.get_point(j, 1);
+    for (auto&& u : unmerged_clusters) {
+      float * res_ = nnc.get_point(u, index_weight[u]);
       flann::Matrix<float> res(res_, 1, dimension);
       auto t = nnc.query(res, 1);
       float dist = std::get<1>(t);
-      while(dist < merge_value) {}
+      while(dist < merge_value) {
+        float * nn_pt = nnc.get_point(std::get<0>(t), std::get<2>(t));
+        float * merged_cluster_ = merge(res_, nn_pt, index_weight[u], std::get<2>(t)); //
+        flann::Matrix<float> merged_cluster(merged_cluster_, 1, dimension);
+        nnc.add_cluster(merged_cluster, index_weight[u] + std::get<2>(t));
+        nnc.delete_cluster(u, index_weight[u]);
+        nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
+        unmerged_clusters.erase(u);
+        unmerged_clusters.erase(std::get<0>(t));
+        merges.push_back({u, std::get<0>(t)});
+        t = nnc.query(merged_cluster, index_weight[u] + std::get<2>(t));
+        unmerged_clusters.insert(std::get<0>(t));
+         // erase u and t(1)
+      }
+
+      if(unmerged_clusters.size() == 1) break;
     }
   }
 }
