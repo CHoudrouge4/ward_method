@@ -14,8 +14,6 @@ float log_base_(float num, float base) {
 
 extern "C" typedef double (*func_t)(int n, int d, void * array);
 
- //std::cout << "radius " << radius << '\n';
-
 hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_):
                                                                   nnc(data, n, d, epsilon_, gamma_), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
 
@@ -66,7 +64,7 @@ void hierarchical_clustering::build_hierarchy() {
       flann::Matrix<float> res(res_, 1, dimension);
       auto t = nnc.query(res, 1);
       float dist = std::get<1>(t);
-      while(dist < merge_value) {
+      while (dist < merge_value) {
         float * nn_pt = nnc.get_point(std::get<0>(t), std::get<2>(t));
         float * merged_cluster_ = merge(res_, nn_pt, index_weight[u], std::get<2>(t)); //
         flann::Matrix<float> merged_cluster(merged_cluster_, 1, dimension);
@@ -78,7 +76,6 @@ void hierarchical_clustering::build_hierarchy() {
         merges.push_back({u, std::get<0>(t)});
         t = nnc.query(merged_cluster, index_weight[u] + std::get<2>(t));
         unmerged_clusters.insert(std::get<0>(t));
-         // erase u and t(1)
       }
 
       if(unmerged_clusters.size() == 1) break;
