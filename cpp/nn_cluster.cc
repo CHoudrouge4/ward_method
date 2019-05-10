@@ -37,7 +37,7 @@ nnCluster::nnCluster (float * points_, int n, int d, double epsilon_, double gam
 
   flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(4));
   build = std::vector<bool>(number_of_data_structure, false);
-  std::cout << "the number of data structure " << number_of_data_structure << std::endl;
+//  std::cout << "the number of data structure " << number_of_data_structure << std::endl;
   assert(size == n);
   assert(d == dimension);
   assert(number_of_data_structure >= 1);
@@ -62,14 +62,14 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   std::vector<std::vector<float>> dists;
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i]) continue;
-    std::cout << "visited backets " <<  i << '\n';
+//    std::cout << "visited backets " <<  i << '\n';
     nn_data_structures[i].knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
     int tmp_index = indices[0][0];
     int tmp_size = (int) floor(pow(1 + epsilon, i));
-    std::cout << "the calculated size " <<  tmp_size << '\n';
+//    std::cout << "the calculated size " <<  tmp_size << '\n';
     float tmp_dist;
 
-    std::cout << "query result " << indices << ' ' << dists << std::endl;
+//    std::cout << "query result " << indices << ' ' << dists << std::endl;
 
     if(itself)
       tmp_dist = dists[0][0];
@@ -77,12 +77,12 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
       tmp_dist = distance(query_size, tmp_size, dists[0][0]);
 
     if (tmp_dist <= min_distance) {
-      std::cout << "compare distance " << tmp_dist << ' ' <<  min_distance << '\n';
-      std::cout << "indexes " << tmp_index << ' ' << res << std::endl;
-      float * ar_res = nn_data_structures[i].getPoint(indices[0][0]);
-      for (int j = 0; j < dimension; ++j) {
-        std::cout << "inside query " << i << ' ' << *(ar_res + j) << std::endl;
-      }
+//      std::cout << "compare distance " << tmp_dist << ' ' <<  min_distance << '\n';
+//      std::cout << "indexes " << tmp_index << ' ' << res << std::endl;
+//      float * ar_res = nn_data_structures[i].getPoint(indices[0][0]);
+//      for (int j = 0; j < dimension; ++j) {
+//        std::cout << "inside query " << i << ' ' << *(ar_res + j) << std::endl;
+//      }
       min_distance = tmp_dist;
       res = tmp_index;
       res_size = tmp_size;
@@ -97,26 +97,26 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
 
 void nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
       int idx = ceil(log_base(cluster_size, 1 + epsilon));
-      std::cout << "add to bucket " << idx << '\n';
+//      std::cout << "add to bucket " << idx << '\n';
       if (!build[idx]) {
-        std::cout << "build then add" << std::endl;
+//        std::cout << "build then add" << std::endl;
         nn_data_structures[idx].buildIndex(cluster);
         build[idx] = true;
       } else {
-        std::cout << "just add" << std::endl;
+//        std::cout << "just add" << std::endl;
         nn_data_structures[idx].addPoints(cluster);
       }
 }
 
 void nnCluster::delete_cluster(int idx, int size) {
       int i = ceil(log_base(size, 1 + epsilon));// I think it is wrong
-      std::cout << " deleted from backet " << i << '\n';
+//      std::cout << " deleted from backet " << i << '\n';
       nn_data_structures[i].removePoint(idx);
 }
 
 float * nnCluster::get_point(int idx, int size) {
   int i = (int) ceil(log_base(size, 1 + epsilon));
-  std::cout << "which ds I am asking " << i << '\n';
+//  std::cout << "which ds I am asking " << i << '\n';
   if(build[i])
     return nn_data_structures[i].getPoint(idx);
   else
