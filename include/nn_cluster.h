@@ -33,4 +33,5 @@ private:
   int number_of_data_structure;
   std::vector<flann::Index<flann::L2<float>>> nn_data_structures;
   std::vector<bool> build;
+  float distance(int size_a, int size_b, float dist);
 };

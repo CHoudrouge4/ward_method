@@ -7,6 +7,15 @@
 #include <random>
 #include <dlfcn.h>
 #include "nn_cluster.h"
+#include <time.h>
+
+clock_t start;
+clock_t current;
+clock_t elapsed = 0;
+
+inline void begin_record_time() { start = clock(); current = start; }
+inline void get_current_time() { current = clock(); }
+inline clock_t elapsed_time() { return current - start;}
 
 float * read_file(const std::string file_name, int &n, int &m) {
   std::ifstream in(file_name);
@@ -57,23 +66,33 @@ void print_matrix (const flann::Matrix<float> &dataset, const int n, const int d
 extern "C" typedef double (*func_t)(int n, int d, void * array);
 
 void test_add_delete_cluster(nnCluster &index, const int n, const int d) {
+
   std::random_device rd;
   std::mt19937 gen(rd());
   int n_d_s = index.get_number_of_data_structures();
   std::uniform_int_distribution<> dis(1, n_d_s);
+  begin_record_time();
+  while(elapsed_time() < 100000000) {
+    float * new_cluster_ = generate_random_matrix(1, d);
+    int random_size = dis(gen);
+    flann::Matrix<float> new_cluster(new_cluster_, 1, d);
 
-  float * new_cluster_ = generate_random_matrix(1, d);
-  int random_size = dis(gen);
-  flann::Matrix<float> new_cluster(new_cluster_, 1, d);
-
-  std::cout << "the random size is " << random_size << '\n';
-  index.add_cluster(new_cluster, random_size);
-  auto t = index.query(new_cluster, random_size);
-  std::cout << "query result " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << '\n';
-  float * res = index.get_point(std::get<0>(t), std::get<2>(t));
-
-  for (int i = 0; i < d; ++i) {
-    std::cout << *(new_cluster_ + i) << ' ' << *(res + i) << '\n';
+    std::cout << ">>>> the random size is " << random_size << '\n';
+    index.add_cluster(new_cluster, random_size);
+    auto t = index.query(new_cluster, random_size, true);
+    std::cout << "query result " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << '\n';
+    float * res = index.get_point(std::get<0>(t), std::get<2>(t));
+    float dist = 0;
+    for (int i = 0; i < d; ++i) {
+      std::cout << new_cluster[0][i] << ' ' << *(new_cluster_ + i) << ' ' << *(res + i) << std::endl;
+      float tmp = (*(new_cluster_ + i) -  (*(res + i)));
+      dist += tmp * tmp;
+    }
+    std::cout << "distance "<< dist << '\n';
+    for(int i = 0; i < d; ++i) {
+      assert(*(new_cluster_ + i) == *(res + i));
+    }
+    get_current_time();
   }
 }
 
