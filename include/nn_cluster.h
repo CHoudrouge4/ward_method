@@ -1,3 +1,4 @@
+#pragma once
 #include "flann/flann.hpp"
 #include "flann/io/hdf5.h"
 #include <tuple>

@@ -17,12 +17,21 @@ extern "C" typedef double (*func_t)(int n, int d, void * array);
 hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_):
                                                                   nnc(data, n, d, epsilon_, gamma_), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
 
+  assert(size == n);
+  assert(d == dimension);
+  assert(epsilon == epsilon_);
+  assert(gamma == gamma_);
+
+  pts_index = std::vector<int>(size);
   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
   func_t func = (func_t)dlsym( lib, "radius_min_circle");
   double radius = func(n, d, (void *) data);
   max_dist = 2 * radius;
   min_dist = compute_min_dist();
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
+  std::cout << "max distance " << max_dist << '\n';
+  std::cout << "min distance " << min_dist << '\n';
+
 }
 
 double hierarchical_clustering::compute_min_dist() {
@@ -33,9 +42,12 @@ double hierarchical_clustering::compute_min_dist() {
       nnc.delete_cluster(i, 1);
       auto t = nnc.query(res, 1);
       nnc.add_cluster(res, 1);
+      std::cout << "approx " << std::get<1>(t) << '\n';
       min_dis = std::min(std::get<1>(t), min_dis);
       t = nnc.query(res, 1);
       unmerged_clusters.insert (std::get<0>(t));
+      assert(i >= 0);
+      assert((unsigned int)i < pts_index.size());
       pts_index[i] = std::get<0>(t);
       index_weight[std::get<0>(t)] = 1;
   }

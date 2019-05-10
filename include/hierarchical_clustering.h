@@ -31,7 +31,6 @@ private:
 //  void read_file(const std::string);
 public:
   hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_);
-  virtual void run() = 0;
   std::vector<std::pair<int, int>> get_merges() const;
   void build_hierarchy();
 };

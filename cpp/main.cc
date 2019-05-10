@@ -7,7 +7,10 @@
 #include <random>
 #include <dlfcn.h>
 #include "nn_cluster.h"
+#include "hierarchical_clustering.h"
 #include <time.h>
+#include <limits>
+
 
 clock_t start;
 clock_t current;
@@ -28,6 +31,33 @@ float * read_file(const std::string file_name, int &n, int &m) {
   }
   in.close();
   return array;
+}
+
+float compute_min_distance(float * array, int n, int m) {
+  float result = std::numeric_limits<float>::max();
+  for (int i = 0; i < n; ++i) {
+    for (int j = i + 1; j < n; ++j) {
+      float dist = 0.0;
+      for (int k = 0; k < m; ++k) {
+        float tmp = (*(array + i * m + k)) - (* (array + j * m + k));
+        dist += tmp * tmp;
+      }
+      if(dist < result) result = dist;
+    }
+  }
+  return sqrt(result);
+}
+
+void print_array (float * array, int n, int m) {
+  std::cout << "[" << ' ';
+  for (int i = 0; i < n; ++i) {
+    std::cout << '[';
+    for(int j = 0; j < m; ++j) {
+      std::cout << *(array + i*m + j) << ' ';
+    }
+    std::cout << ']' << '\n';
+  }
+  std::cout << "]" << '\n';
 }
 
 float * generate_random_matrix(int n, int m) {
@@ -107,9 +137,20 @@ void test_data_structure() {
   test_add_delete_cluster(index, n, d);
 }
 
+void test_HC() {
+  int n;
+  int d;
+  float * points = read_file("data.in", n, d);
+  //print_array(points, n, d);
+  hierarchical_clustering hc(points, n, d, 0.5, 0.9);
+  std::cout << "min distance via brute force " << compute_min_distance(points, n, d) << '\n';
+  //free(points);
+}
+
 int main () {
 
-  test_data_structure();
+  // test_data_structure();
+  test_HC();
   // int n = 5;
   // int d = 2;
   // float * result = generate_random_matrix(n, d);
