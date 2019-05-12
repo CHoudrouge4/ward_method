@@ -45,7 +45,7 @@ float compute_min_distance(float * array, int n, int m) {
       if(dist < result) result = dist;
     }
   }
-  return sqrt(result);
+  return result;
 }
 
 void print_array (float * array, int n, int m) {

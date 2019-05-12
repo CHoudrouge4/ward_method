@@ -7,6 +7,7 @@
 
 //  TODO:
 // check the float and double compatibility
+// Remove the sqrt from the library if it is uses.
 
 float log_base_(float num, float base) {
   return log(num)/ log(base);
@@ -27,6 +28,7 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, dou
   func_t func = (func_t)dlsym( lib, "radius_min_circle");
   double radius = func(n, d, (void *) data);
   max_dist = 2 * radius;
+  max_dist = max_dist * max_dist;
   min_dist = compute_min_dist();
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
   std::cout << "max distance " << max_dist << '\n';
@@ -40,7 +42,7 @@ double hierarchical_clustering::compute_min_dist() {
       float * res_ = nnc.get_point(i, 1);
       flann::Matrix<float> res(res_, 1, dimension);
       nnc.delete_cluster(i, 1);
-      auto t = nnc.query(res, 1);
+      auto t = nnc.query(res, 1, true);
       nnc.add_cluster(res, 1);
       std::cout << "approx " << std::get<1>(t) << '\n';
       min_dis = std::min(std::get<1>(t), min_dis);
