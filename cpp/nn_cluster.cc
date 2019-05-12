@@ -48,7 +48,7 @@ nnCluster::nnCluster (float * points_, int n, int d, double epsilon_, double gam
   nn_data_structures[0].buildIndex();
   build[0] = true;
   //const IndexParams& params;
-  for (int i = 1; i < number_of_data_structure; ++i) {
+  for (int i = 1; i < number_of_data_structure + 1; ++i) {
     flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(4));
     nn_data_structures.push_back(tmp);
   }
@@ -110,7 +110,9 @@ void nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
 
 void nnCluster::delete_cluster(int idx, int size) {
       int i = ceil(log_base(size, 1 + epsilon));// I think it is wrong
-//      std::cout << " deleted from backet " << i << '\n';
+      std::cout << " deleted from backet " << i << ' ' << size <<'\n';
+		//	assert(i >= 0);
+		//	assert((size_t)i < nn_data_structures.size());
       nn_data_structures[i].removePoint(idx);
 }
 

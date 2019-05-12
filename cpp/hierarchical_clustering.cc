@@ -44,9 +44,10 @@ double hierarchical_clustering::compute_min_dist() {
       nnc.delete_cluster(i, 1);
       auto t = nnc.query(res, 1, true);
       nnc.add_cluster(res, 1);
-      std::cout << "approx " << std::get<1>(t) << '\n';
+    //  std::cout << "approx " << std::get<1>(t) << '\n';
       min_dis = std::min(std::get<1>(t), min_dis);
       t = nnc.query(res, 1);
+      assert(std::get<0>(t) >= 0);
       unmerged_clusters.insert (std::get<0>(t));
       assert(i >= 0);
       assert((unsigned int)i < pts_index.size());
@@ -73,22 +74,34 @@ void hierarchical_clustering::build_hierarchy() {
   float merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i);
-    for (auto&& u : unmerged_clusters) {
+    for (auto u : unmerged_clusters) {
+      std::cout << "what is u? " << u << '\n';
       float * res_ = nnc.get_point(u, index_weight[u]);
       flann::Matrix<float> res(res_, 1, dimension);
       auto t = nnc.query(res, 1);
       float dist = std::get<1>(t);
       while (dist < merge_value) {
+        // get the point
         float * nn_pt = nnc.get_point(std::get<0>(t), std::get<2>(t));
+        // merge u and the nn
         float * merged_cluster_ = merge(res_, nn_pt, index_weight[u], std::get<2>(t)); //
         flann::Matrix<float> merged_cluster(merged_cluster_, 1, dimension);
+        // add the merged cluster
         nnc.add_cluster(merged_cluster, index_weight[u] + std::get<2>(t));
+
+        // delete cluster u
         nnc.delete_cluster(u, index_weight[u]);
+        // delete nn of u from the ds
         nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
+        // erase u from unmerged cluster
         unmerged_clusters.erase(u);
+        // remove nnc from ubmerged cluster
         unmerged_clusters.erase(std::get<0>(t));
+        // register the merged operation
         merges.push_back({u, std::get<0>(t)});
+        // query from the merged cluster
         t = nnc.query(merged_cluster, index_weight[u] + std::get<2>(t));
+        dist = std::get<1>(t);
         unmerged_clusters.insert(std::get<0>(t));
       }
 
