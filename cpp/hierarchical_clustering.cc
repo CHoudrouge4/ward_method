@@ -35,7 +35,7 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, dou
   std::cout << "min distance " << min_dist << '\n';
   unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
 
-
+  std::cout << "BETA " << beta << std::endl;
 }
 
 double hierarchical_clustering::compute_min_dist() {
@@ -54,6 +54,7 @@ double hierarchical_clustering::compute_min_dist() {
       assert(i >= 0);
       assert((unsigned int)i < pts_index.size());
       pts_index[i] = std::get<0>(t);
+      existed[std::get<0>(t)] = true;
       index_weight[std::get<0>(t)] = 1;
   }
   return min_dis;
@@ -72,13 +73,13 @@ float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, i
 
 void hierarchical_clustering::build_hierarchy() {
   // we want to have a list of the unmerged value
+  int count = unmerged_clusters.size();
   float merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i);
+    std::cout << "merge value " << merge_value << std::endl;
     for (auto u : unmerged_clusters) {
-    //  int u = *it;
-      std::cout << "what is u? " << u << '\n';
-
+      if(! existed[u]) continue;
       // getting the coordinates of u
       float * res_ = nnc.get_point(u, index_weight[u]);
       flann::Matrix<float> res(res_, 1, dimension);
@@ -86,7 +87,7 @@ void hierarchical_clustering::build_hierarchy() {
       // remove u from the DS
       nnc.delete_cluster(u , index_weight[u]);
 
-      // query for nnc
+      // Getting the nn for u
       auto t = nnc.query(res, 1);
       float dist = std::get<1>(t); // getting the distance
 
@@ -94,71 +95,65 @@ void hierarchical_clustering::build_hierarchy() {
 
         // printing what is res
         for (int j = 0; j < dimension; ++j)
-          std::cout << " res " << *(res_ + j) << '\n';
+          std::cout << " u coordinates " << *(res_ + j) << '\n';
 
 
         std::cout << "the nearest neighbour result " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
         // get the nn and print it
         float * nn_pt = nnc.get_point(std::get<0>(t), std::get<2>(t));
         for (int j = 0; j < dimension; ++j)
-          std::cout << " pt " << *(nn_pt + j) << '\n';
+          std::cout << " NN coords " << *(nn_pt + j) << '\n';
 
         // merge u and the nn
         float * merged_cluster_ = merge(res_, nn_pt, index_weight[u], std::get<2>(t)); //
         flann::Matrix<float> merged_cluster(merged_cluster_, 1, dimension);
-
         for (int j = 0; j < dimension; ++j)
           std::cout << " merged " << *(merged_cluster_ + j) << '\n';
 
         // add the merged cluster
         std::cout << "weight of u before merging " << index_weight[u] << std::endl;
+
         int tmp_weight = index_weight[u] + std::get<2>(t);
-        nnc.add_cluster(merged_cluster, tmp_weight);
 
         // delete cluster u
-        nnc.delete_cluster(u, index_weight[u]);
+        // nnc.delete_cluster(u, index_weight[u]);
         // delete nn of u from the ds
         nnc.delete_cluster(std::get<0>(t), std::get<2>(t));
         // erase u from unmerged cluster
+        existed[u] = false;
         unmerged_clusters.erase(u);
+        count--;
         // remove nnc from ubmerged cluster
+        existed[std::get<0>(t)] = false;
         unmerged_clusters.erase(std::get<0>(t));
+
+        count--;
         // register the merged operation
-        merges.push_back({u, std::get<0>(t)});
+      //  merges.push_back({u, std::get<0>(t)});
 //------------------------------------------------------------------------------
-
-        // query from the merged cluster
-        t = nnc.query(merged_cluster, index_weight[u] + std::get<2>(t), true);
-        u =  std::get<0>(t);
+        t = nnc.query(merged_cluster, tmp_weight);
+        u = std::get<0>(t);
         dist = std::get<1>(t);
-        std::cout << "getting the index of the merged value " << u << ' ' << dist << '\n';
-
-        index_weight[u] = tmp_weight;
-
-
-        res_ = nnc.get_point(u, index_weight[u]);
-        res = flann::Matrix<float>(res_, 1, dimension);
-        t = nnc.query(res, 1);
-        dist = std::get<1>(t);
-        for(int j = 0; j < dimension; ++j) {
-          std::cout << "merged coord " << * (merged_cluster_ + j) << '\n';
+        if(dist > merge_value) {
+          std::cout << "dist > merge value" << std::endl;
+          nnc.add_cluster(merged_cluster, tmp_weight);
+          auto p = nnc.query(merged_cluster, tmp_weight, true);
+          std::cout << "p : " << std::get<0>(p) << ' ' << std::get<1>(p) << ' ' << std::get<2>(p) << std::endl;
+          index_weight[std::get<0>(p)] = tmp_weight;
+          existed[std::get<0>(p)] = true;
         }
-
-
-        if(dist < merge_value) {
-          nnc.delete_cluster(u , index_weight[u]);
-        } else {
-          unmerged_clusters.insert(u);
-        }
-
-        std::cout << "unmerged size " << unmerged_clusters.size() << '\n';
+        std::cout << "the nearest neighbour result " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
 
       }
 
+
       unmerged_clusters.insert(std::get<0>(t));
+      existed[std::get<0>(t)] = true;
+      count++;
       if(unmerged_clusters.size() == 1) break;
     }
   }
+  std::cout << "remaining " << unmerged_clusters.size() << '\n';
 }
 
 // double hierarchical_clustering::distance(uint i, uint j) {

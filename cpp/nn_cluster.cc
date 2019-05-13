@@ -64,6 +64,9 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
     if (!build[i]) continue;
 //    std::cout << "visited backets " <<  i << '\n';
     nn_data_structures[i].knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
+		std::cout << "number of indices " << indices.size() << std::endl;
+		if(indices.size() == 0) continue;
+		if(indices[0].size() == 0) continue;
     int tmp_index = indices[0][0];
     int tmp_size = (int) floor(pow(1 + epsilon, i));
 //    std::cout << "the calculated size " <<  tmp_size << '\n';
@@ -118,9 +121,9 @@ void nnCluster::delete_cluster(int idx, int size) {
 
 float * nnCluster::get_point(int idx, int size) {
   int i = (int) ceil(log_base(size, 1 + epsilon));
-	std::cout << "which ds I am asking " << i << '\n';
+	std::cout << "which ds I am asking " << i << " because the size is " << size << '\n';
   if(build[i]) {
-		std::cout << "returning the point" << std::endl; 
+		std::cout << "returning the point" << std::endl;
     return nn_data_structures[i].getPoint(idx);
   } else {
 		std::cout << "returning nullptr" << std::endl;

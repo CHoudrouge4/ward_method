@@ -26,6 +26,8 @@ private:
   std::vector<int> pts_index;
   std::unordered_map<int, int> index_weight;
 
+  std::unordered_map<int, bool> existed;
+
   double compute_min_dist();
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
 //  void read_file(const std::string);
