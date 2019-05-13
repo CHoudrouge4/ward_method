@@ -118,11 +118,14 @@ void nnCluster::delete_cluster(int idx, int size) {
 
 float * nnCluster::get_point(int idx, int size) {
   int i = (int) ceil(log_base(size, 1 + epsilon));
-//  std::cout << "which ds I am asking " << i << '\n';
-  if(build[i])
+	std::cout << "which ds I am asking " << i << '\n';
+  if(build[i]) {
+		std::cout << "returning the point" << std::endl; 
     return nn_data_structures[i].getPoint(idx);
-  else
-    return nullptr;
+  } else {
+		std::cout << "returning nullptr" << std::endl;
+	  return nullptr;
+	}
 }
 
 int nnCluster::get_number_of_data_structures() const {
