@@ -143,7 +143,6 @@ void test_HC() {
   float * points = read_file("data.in", n, d);
   //print_array(points, n, d);
   hierarchical_clustering hc(points, n, d, 0.5, 0.9);
-  std::cout << "min distance via brute force " << compute_min_distance(points, n, d) << '\n';
   //free(points);
   hc.build_hierarchy();
 }
