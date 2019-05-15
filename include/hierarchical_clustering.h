@@ -58,7 +58,7 @@ private:
   double compute_min_dist();
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
 //  void read_file(const std::string);
-  std::pair<std::unordered_set<pair_int>, std::unordered_set<pair_int>> helper(std::unordered_set<pair_int> &mp, float merge_value);
+  std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, float merge_value);
 public:
   hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_);
   std::vector<std::pair<int, int>> get_merges() const;

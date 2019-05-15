@@ -85,7 +85,7 @@ float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, i
   return res;
 }
 
-std::pair<std::unordered_set<pair_int>, std::unordered_set<pair_int>>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
+std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
   std::unordered_set <pair_int> unchecked;
   std::vector<pair_int> to_erase;
   bool intered = false;
@@ -110,7 +110,7 @@ std::pair<std::unordered_set<pair_int>, std::unordered_set<pair_int>>  hierarchi
       if(res_ == nullptr) std::cout << "nullptr" << std::endl;
       print_array(res_, 1, dimension, "u coordinates before query ");
 
-      auto t = nnc.query(res, 1);
+      auto t = nnc.query(res, u_weight);
       std::cout << "t: " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
       float dist = std::get<1>(t); // getting the distance
 
@@ -152,6 +152,10 @@ std::pair<std::unordered_set<pair_int>, std::unordered_set<pair_int>>  hierarchi
         dist = std::get<1>(t);
         u = -1;
         u_weight = merged_weight;
+        if(merged_weight == size) break;
+        std::cout << "new distance " << dist << std::endl;
+        float * nnn_pt = nnc.get_point(std::get<0>(t), std::get<2>(t));
+        print_array(nnn_pt, 1, dimension, "NN coords");
         if(dist < merge_value) {
           res_ = merged_cluster_;
           res = merged_cluster;
@@ -179,7 +183,7 @@ std::pair<std::unordered_set<pair_int>, std::unordered_set<pair_int>>  hierarchi
   for(size_t i = 0; i < to_erase.size(); ++i) {
     mp.erase(to_erase[i]);
   }
-  return std::make_pair(unchecked, magic);
+  return unchecked;
 }
 
 void hierarchical_clustering::build_hierarchy() {
@@ -188,33 +192,30 @@ void hierarchical_clustering::build_hierarchy() {
     merge_value = pow(1 + epsilon, i); // find an efficient one
     std::cout << "merge value " << merge_value << std::endl;
 
-    auto pp = helper(this->unmerged_clusters, merge_value);
-    std::unordered_set<pair_int> ss = pp.first;
-    while (ss.size() >= 1) {
-      for(auto p: ss) {
-        std::cout << p.first << ' ' << p.second << '\n';
-        existed[p] = true;
-        ss.insert(p);
-      }
+    auto ss = helper(this->unmerged_clusters, merge_value); // these are the merges
+    while (ss.size() > 1) {
       std::cout << "calling with ss" << std::endl;
       auto tmp = helper(ss, merge_value);
       ss.clear();
-      for(auto p: tmp.first) {
+      for(auto p: tmp) {
         existed[p] = true;
         ss.insert(p);
       }
     }
 
-    std::cout << " magic size " << pp.second.size() << std::endl;
-    for(auto m: pp.second) {
+    if(ss.size() == 1)
+      unmerged_clusters.insert(*ss.begin());
+
+
+    std::cout << " magic size " << magic.size() << std::endl;
+    for(auto m: magic) {
       unmerged_clusters.insert(m);
     }
-
     magic.clear();
     std::cout << "magic is empty" << std::endl;
 
     std::cout << "remaining " << unmerged_clusters.size() << '\n';
-  //  if(unmerged_clusters.size() <= 1) break;
+    if(unmerged_clusters.size() <= 1) break;
     }
 }
 
