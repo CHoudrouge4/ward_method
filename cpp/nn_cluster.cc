@@ -32,7 +32,7 @@ float nnCluster::distance(int size_a, int size_b, float dist) {
 
 nnCluster::nnCluster (float * points_, int n, int d, double epsilon_, double gamma_):
       points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
-  number_of_data_structure = (int)std::max(1.0f, ceil(log_base(size, 1 + epsilon)));
+  number_of_data_structure = (int) ceil(log_base(n, 1 + epsilon)) + 5 ;
 
   flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(4));
   build = std::vector<bool>(number_of_data_structure, false);
@@ -54,6 +54,17 @@ nnCluster::nnCluster (float * points_, int n, int d, double epsilon_, double gam
   }
 }
 
+// 
+// std::tuple<int, float, int> nnCluster::query_itself(const flann::Matrix<float> &query, const int query_size) {
+// 	int idx = ceil(log_base(cluster_size, 1 + epsilon));
+// 	std::vector<std::vector<int>> indices;
+// 	std::vector<std::vector<float>> dists;
+// 	nn_data_structures[idx].knnSearch(quey, indices, dists, flann::SearchParams(128));
+//
+// 	return std::make_tuple(indices[0][0], dists[0][0], query_size);
+// }
+
+// seperate quey and query it self
 std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query, const int query_size, bool itself) {
   float min_distance = std::numeric_limits<float>::max();
   int res = -1;
@@ -63,7 +74,7 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i] || sizes[i] <= 0) continue;
 		int tmp_size = (int) floor(pow(1 + epsilon, i));
-    nn_data_structures[i].knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
+    nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(128));
 		if(indices.size() == 0) continue;
 		if(indices[0].size() == 0) continue;
     int tmp_index = indices[0][0];
@@ -89,7 +100,9 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
 
 void nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
       int idx = ceil(log_base(cluster_size, 1 + epsilon));
-      if (!build[idx]) {
+			std::cout << " cluster size " << cluster_size << ' ' << idx << "/" << number_of_data_structure << std::endl;
+			assert(idx <= number_of_data_structure);
+		  if (!build[idx]) {
         nn_data_structures[idx].buildIndex(cluster);
         build[idx] = true;
       } else {
@@ -108,7 +121,6 @@ void nnCluster::delete_cluster(int idx, int size) {
 
 float * nnCluster::get_point(int idx, int size) {
   int i = (int) ceil(log_base(size, 1 + epsilon));
-	std::cout << "the size of the buket " << sizes[i] << std::endl;
   if(build[i]) {
     return nn_data_structures[i].getPoint(idx);
   } else {

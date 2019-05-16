@@ -138,13 +138,24 @@ void test_data_structure() {
 }
 
 void test_HC() {
-  int n;
-  int d;
-  float * points = read_file("data.in", n, d);
-  //print_array(points, n, d);
+  int n = 10000;
+  int d = 2;
+  //float * points = generate_random_matrix( n, d);
+  float * points = read_file("data.in", n , d);
+
+  print_array(points, n, d);
+
   hierarchical_clustering hc(points, n, d, 0.5, 0.9);
+
+
   //free(points);
   hc.build_hierarchy();
+  auto merges = hc.get_merges();
+  for(auto p : merges) {
+    std::cout << (p.first).first << ' ' << (p.first).second << " # " << (p.second).first << ' ' << (p.second).second << '\n';
+  }
+
+  hc.print_merges();
 }
 
 int main () {

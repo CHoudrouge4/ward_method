@@ -5,6 +5,8 @@
 #include <limits>
 #include <stdlib.h>
 #include <tuple>
+#include <utility>
+#include <sstream>
 
 #define id first
 #define w second
@@ -13,7 +15,11 @@ typedef std::pair<int, int> pair_int;
 //  TODO:
 // check the float and double compatibility
 // Remove the sqrt from the library if it is uses.
-
+std::string toString( const std::pair< size_t, size_t >& data) {
+    std::ostringstream str;
+    str << data.first << ", " << data.second;
+    return str.str();
+}
 
 void print_array (float * array, int n, int m, std::string msg) {
   std::cout << msg << ' ';
@@ -70,6 +76,7 @@ double hierarchical_clustering::compute_min_dist() {
       assert((unsigned int)i < pts_index.size());
       pts_index[i] = std::get<0>(t);
       existed[{std::get<0>(t), std::get<2>(t)}] = true;
+      dict[{std::get<0>(t) , 1}] = {i, 1};
   }
   return min_dis;
 }
@@ -99,7 +106,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       // do a copy
       float * res_ = (float *) malloc(dimension * sizeof(float));
       float * tmp = nnc.get_point(u, u_weight);
-      if(tmp == nullptr) std::cout << "tmp is nullptr" << std::endl;
+      if(tmp == nullptr) std::cout << "u " << u << " u_weight " << u_weight << " tmp is nullptr" << std::endl;
       memcpy(res_, tmp, dimension * sizeof(float));
 
       flann::Matrix<float> res(res_, 1, dimension);
@@ -134,6 +141,9 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         merged_weight = u_weight + std::get<2>(t);
         std::cout << "weight after merge " << merged_weight  << std::endl;
 
+        merges.push_back({{u, u_weight}, {std::get<0>(t), std::get<2>(t)}});
+
+
         // Deleting phase
         // it is wrong because we dont have valid p
         if (u != -1) {
@@ -167,15 +177,18 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         print_array(res_, 1, dimension, "failed : ");
         nnc.add_cluster(res, u_weight);
         t = nnc.query(res, u_weight, true);
+        dict[{std::get<0>(t), std::get<2>(t)}] = dict[{u, u_weight}];
         existed[{std::get<0>(t), std::get<2>(t)}] = true;
         std::cout << "add to magic " << std::get<0>(t) << ' ' << std::get<2>(t) <<  std::endl;
         magic.insert({std::get<0>(t), std::get<2>(t)});
         //unchecked.insert({std::get<0>(t), std::get<2>(t)});
       } else {
         nnc.add_cluster(merged_cluster, merged_weight);
-        t = nnc.query(merged_cluster, merged_weight, true);
-        existed[{std::get<0>(t), std::get<2>(t)}] = true;
-        unchecked.insert({std::get<0>(t), std::get<2>(t)});
+        auto tt = nnc.query(merged_cluster, merged_weight, true);
+        existed[{std::get<0>(tt), std::get<2>(tt)}] = true;
+        unchecked.insert({std::get<0>(tt), std::get<2>(tt)});
+        dict[{std::get<0>(tt), std::get<2>(tt)}] = {std::get<0>(tt), std::get<2>(tt)};
+        rep[{p.id, p.w}] = {{std::get<0>(t), std::get<2>(t)}, {std::get<0>(tt), std::get<2>(tt)}};
       }
     }
   }
@@ -190,11 +203,11 @@ void hierarchical_clustering::build_hierarchy() {
   float merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i); // find an efficient one
-    std::cout << "merge value " << merge_value << std::endl;
+    //std::cout << "merge value " << merge_value << std::endl;
 
     auto ss = helper(this->unmerged_clusters, merge_value); // these are the merges
     while (ss.size() > 1) {
-      std::cout << "calling with ss" << std::endl;
+      //std::cout << "calling with ss" << std::endl;
       auto tmp = helper(ss, merge_value);
       ss.clear();
       for(auto p: tmp) {
@@ -206,19 +219,29 @@ void hierarchical_clustering::build_hierarchy() {
     if(ss.size() == 1)
       unmerged_clusters.insert(*ss.begin());
 
-
-    std::cout << " magic size " << magic.size() << std::endl;
+    //std::cout << " magic size " << magic.size() << std::endl;
     for(auto m: magic) {
       unmerged_clusters.insert(m);
     }
     magic.clear();
-    std::cout << "magic is empty" << std::endl;
+    //std::cout << "magic is empty" << std::endl;
 
-    std::cout << "remaining " << unmerged_clusters.size() << '\n';
+    //std::cout << "remaining " << unmerged_clusters.size() << '\n';
     if(unmerged_clusters.size() <= 1) break;
     }
 }
 
-std::vector<std::pair<int, int>> hierarchical_clustering::get_merges() const {
+std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges() const {
   return merges;
+}
+
+void hierarchical_clustering::print_merges() {
+  for (auto&& p : merges) {
+    std::cout << dict[p.first].first << ' ' << dict[p.first].second << " || " <<
+    dict[p.second].first << ' ' << dict[p.second].second << '\n';
+  }
+
+  for (auto&& p: rep) {
+    std::cout << toString(dict[p.first]) << " = "  << toString(dict[p.second.first]) << " + " << toString(dict[p.second.second]) << '\n';
+  }
 }

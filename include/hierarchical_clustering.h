@@ -26,7 +26,6 @@ public:
   }
 };
 
-
 namespace std {
   template <>
   struct hash<pair_int> {
@@ -42,7 +41,7 @@ class hierarchical_clustering {
 private:
   int dimension;
   int size;
-  std::vector<std::pair<int, int>> merges;
+  std::vector<std::pair<pair_int, pair_int>> merges;
   double epsilon;
   double gamma;
   nnCluster nnc;
@@ -59,8 +58,11 @@ private:
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
 //  void read_file(const std::string);
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, float merge_value);
+  std::unordered_map<pair_int, pair_int> dict;
+  std::unordered_map<pair_int, std::pair<pair_int, pair_int>> rep;
 public:
   hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_);
-  std::vector<std::pair<int, int>> get_merges() const;
+  std::vector<std::pair<pair_int, pair_int>> get_merges() const;
+  void print_merges();
   void build_hierarchy();
 };
