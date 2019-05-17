@@ -34,6 +34,8 @@ public:
 
   int add_cluster(flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index );
 
+  void add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size);
+
   void delete_cluster(int idx, int size);
 
   float * get_point(int idx, int size);
@@ -43,6 +45,8 @@ public:
   float compute_min_dist();
 
   pair_int get_index(int index, int weight);
+
+  void update_dict(int new_idx, int new_weight, int old_idx, int old_weight);
 
   ~nnCluster();
 private:
@@ -60,4 +64,5 @@ private:
 
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
   std::unordered_map<pair_int, pair_int> dict;
+  std::unordered_map<pair_int, int> index_ds;
 };

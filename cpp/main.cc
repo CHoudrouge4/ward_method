@@ -117,7 +117,7 @@ void test_add_delete_cluster(nnCluster &index, const int n, const int d) {
     int random_size = dis(gen);
     flann::Matrix<float> new_cluster(new_cluster_, 1, d);
 
-    std::cout << ">>>> the random size is " << random_size << '\n';
+    std::cout << ">>>> the random size is " << random_size << std::endl;
     index.add_cluster(new_cluster, random_size);
     auto t = index.query(new_cluster, random_size, true);
     std::cout << "query result " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << '\n';
@@ -138,12 +138,13 @@ void test_add_delete_cluster(nnCluster &index, const int n, const int d) {
 
 void test_data_structure() {
   std::cout << "testing the data structure" << '\n';
-  int n = 10;
-  int d = 3;
+  int n = 5;
+  int d = 2;
   float * points = generate_random_matrix(n, d);
   double epsilon = 0.5;
   double gamma = 0.9;
   nnCluster index(points, n, d, epsilon, gamma);
+  index.compute_min_dist();
   test_add_delete_cluster(index, n, d);
 }
 
@@ -175,13 +176,12 @@ float logb(float num, float base) {
 }
 
 int main () {
-  std::cout << power(1.5, 129) << std::endl;
-  //test_data_structure();
-  test_HC();
+  test_data_structure();
+  //test_HC();
 
-  for(int i = 1; i <= 150; ++i) {
-    std::cout << "size " << i <<  " bucket " << floor(logb(i, 1.5)) << " bucket size " << power(1.5, floor(logb(i, 1.5))) << std::endl;
-  }
+  // for(int i = 1; i <= 150; ++i) {
+  //   std::cout << "size " << i <<  " bucket " << floor(logb(i, 1.5)) << " bucket size " << power(1.5, floor(logb(i, 1.5))) << std::endl;
+  // }
 
 
 

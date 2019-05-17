@@ -53,12 +53,11 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   int res_index = 0;
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i] || sizes[i] <= 0) continue;
-		int tmp_size = (int) floor(pow(1 + epsilon, i));
-    nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(1));
+		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(1));
 		if(indices.size() == 0) continue;
 		if(indices[0].size() == 0) continue;
     int tmp_index = indices[0][0];
-
+		int tmp_size = cluster_weight[{i, tmp_index}];
 	  float tmp_dist;
     if (itself)
       tmp_dist = dists[0][0];
@@ -75,8 +74,8 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
     indices[0].clear();
     dists[0].clear();
   }
-
-  return std::make_tuple(res, min_distance, cluster_weight[{res_index, res}]);
+	//
+  return std::make_tuple(res, min_distance, cluster_weight[{res_index, index_ds[{res, res_index}]}]);
 }
 
 int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
@@ -96,17 +95,25 @@ int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
 
 int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index) {
 	dict[{new_index, cluster_size}] = dict[{old_index, cluster_size}];
-	return add_cluster(cluster, cluster_size);
+	int idx = add_cluster(cluster, cluster_size);
+	index_ds[{new_index, idx}] = old_index;
+	return idx;
+}
+
+void nnCluster::add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size) {
+	int idx = add_cluster(cluster, cluster_size);
+	auto t = query(cluster, cluster_size, true);
+	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
+	cluster_weight[{idx, std::get<0>(t)}] = cluster_size;
 }
 
 void nnCluster::delete_cluster(int idx, int size) {
-      int i = floor(log_base(size, 1 + epsilon));// I think it is wrong
-			assert(i >= 0);
-			assert((size_t)i < nn_data_structures.size());
-      nn_data_structures[i].removePoint(idx);
-			sizes[i] = sizes[i] - 1;
+  int i = floor(log_base(size, 1 + epsilon));// I think it is wrong
+	assert(i >= 0);
+	assert((size_t)i < nn_data_structures.size());
+  nn_data_structures[i].removePoint(idx);
+	sizes[i] = sizes[i] - 1;
 }
-
 
 float * nnCluster::get_point(int idx, int size) {
   int i = (int) floor(log_base(size, 1 + epsilon));
@@ -131,7 +138,12 @@ float nnCluster::compute_min_dist() {
       min_dis = std::min(std::get<1>(t), min_dis);
       t = query(res, 1);
       dict[{i, 1}] = {i, 1};
-      dict[{std::get<0>(t) , std::get<2>(t)}] = {i, 1};
+      dict[{std::get<0>(t), std::get<2>(t)}] = {i, 1};
+			index_ds[{i, 0}] = i;
+			index_ds[{std::get<0>(t), 0}] = {i};
+
+			cluster_weight[{0, i}] = 1;
+			std::cout << "( " << std::get<0>(t) << ' ' <<  std::get<2>(t) << " ) " << std::endl;
   }
   return min_dis;
 }
@@ -142,6 +154,11 @@ int nnCluster::get_number_of_data_structures() const {
 
 pair_int nnCluster::get_index(int index, int weight) {
 	return dict[std::make_pair(index, weight)];
+}
+
+// we can later use one weight
+void nnCluster::update_dict(int new_idx, int new_weight, int old_idx, int old_weight) {
+	dict[{new_idx, new_weight}] = dict[{old_idx, old_weight}];
 }
 
 nnCluster::~nnCluster() {

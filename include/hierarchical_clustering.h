@@ -6,8 +6,6 @@
 #include <utility>
 #include "nn_cluster.h"
 #include <memory>
-#define x(i) 2 * i
-#define y(i) 2 * i + 1
 
 typedef std::vector<double> point;
 typedef unsigned int uint;
@@ -25,29 +23,18 @@ public:
   }
 };
 
-// namespace std {
-//   template <>
-//   struct hash<pair_int> {
-//     const size_t num = 65537;
-//     inline size_t operator()(const std::pair<int, int> &x) const {
-//         return (x.first * num) ^ x.second;
-//     }
-//   };
-// }
-
 class hierarchical_clustering {
 
 private:
   int dimension;
   int size;
-
   double epsilon;
   double gamma;
-  nnCluster nnc;
   double max_dist;
   double min_dist;
   double beta;
-  int max_merge_size;
+
+  nnCluster nnc;
 
   std::vector<std::pair<pair_int, pair_int>> merges;
 
@@ -55,14 +42,13 @@ private:
   std::unordered_map<pair_int, bool, pairhash> existed;
   std::unordered_set <pair_int> magic;
   std::unordered_set<std::pair<int, int>> unmerged_clusters;
-  std::unordered_map<std::pair<int, int>, int> cluster_weight;
 
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
 
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, float merge_value);
-  int compute_merge_weight(int x, int y);
 
   std::unordered_map<pair_int, pair_int> dict;
+
   std::unordered_map<pair_int, std::pair<pair_int, pair_int>> rep;
 
   std::vector<pair_int> output;
