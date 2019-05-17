@@ -13,7 +13,6 @@ typedef std::vector<double> point;
 typedef unsigned int uint;
 typedef std::pair<int, int> pair_int;
 
-
 /**
 * Hash function for the pair of integers.
 */
@@ -26,22 +25,22 @@ public:
   }
 };
 
-namespace std {
-  template <>
-  struct hash<pair_int> {
-    const size_t num = 65537;
-    inline size_t operator()(const std::pair<int, int> &x) const {
-        return (x.first * num) ^ x.second;
-    }
-  };
-}
+// namespace std {
+//   template <>
+//   struct hash<pair_int> {
+//     const size_t num = 65537;
+//     inline size_t operator()(const std::pair<int, int> &x) const {
+//         return (x.first * num) ^ x.second;
+//     }
+//   };
+// }
 
 class hierarchical_clustering {
 
 private:
   int dimension;
   int size;
-  std::vector<std::pair<pair_int, pair_int>> merges;
+
   double epsilon;
   double gamma;
   nnCluster nnc;
@@ -49,15 +48,17 @@ private:
   double min_dist;
   double beta;
   int max_merge_size;
-  std::unordered_set<std::pair<int, int>> unmerged_clusters;
 
-  std::vector<int> pts_index;
+  std::vector<std::pair<pair_int, pair_int>> merges;
+
   std::unordered_map<int, int> index_weight;
   std::unordered_map<pair_int, bool, pairhash> existed;
   std::unordered_set <pair_int> magic;
-  double compute_min_dist();
+  std::unordered_set<std::pair<int, int>> unmerged_clusters;
+  std::unordered_map<std::pair<int, int>, int> cluster_weight;
+
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
-//  void read_file(const std::string);
+
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, float merge_value);
   int compute_merge_weight(int x, int y);
 

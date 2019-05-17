@@ -25,6 +25,7 @@ float logbase(float num, float base) {
 }
 
 typedef std::pair<int, int> pair_int;
+
 //  TODO:
 // check the float and double compatibility
 // Remove the sqrt from the library if it is uses.
@@ -57,38 +58,16 @@ extern "C" typedef double (*func_t)(int n, int d, void * array);
 hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_):
                                                                   nnc(data, n, d, epsilon_, gamma_), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
 
-  pts_index = std::vector<int>(size);
   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
   func_t func = (func_t)dlsym( lib, "radius_min_circle");
   double radius = func(n, d, (void *) data);
   max_dist = 4 * radius;
-  min_dist = compute_min_dist();
+  min_dist = nnc.compute_min_dist();
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
   unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
   output.reserve(n - 1);
-
-
   max_merge_size = (int)power_(1 + epsilon, nnc.get_number_of_data_structures());
   std::cout << " max merge size " << max_merge_size << std::endl;
-}
-
-double hierarchical_clustering::compute_min_dist() {
-  float min_dis = std::numeric_limits<float>::max();
-  for (int i = 0; i < size; ++i) {
-      float * res_ = nnc.get_point(i, 1);
-      flann::Matrix<float> res(res_, 1, dimension);
-      nnc.delete_cluster(i, 1);
-      auto t = nnc.query(res, 1, true);
-      nnc.add_cluster(res, 1);
-      min_dis = std::min(std::get<1>(t), min_dis);
-      t = nnc.query(res, 1);
-      unmerged_clusters.insert (std::make_pair(std::get<0>(t), 1));
-      pts_index[i] = std::get<0>(t);
-      existed[{std::get<0>(t), std::get<2>(t)}] = true;
-      dict[{i, 1}] = {i, 1};
-      dict[{std::get<0>(t) , std::get<2>(t)}] = {i, 1};
-  }
-  return min_dis;
 }
 
 float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, int size_b) {
@@ -103,18 +82,20 @@ float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, i
 }
 
 int hierarchical_clustering::compute_merge_weight(int x, int y) {
-    int tx = power_(1 + epsilon, x);
-    int ty = power_(1 + epsilon, y);
+    int tx = (int) power_(1 + epsilon, x);
+    int ty = (int) power_(1 + epsilon, y);
+    std::cout << "tx: " << tx <<  " ty " << ty << std::endl;
     return (int) floor(logbase(tx + ty, 1 + epsilon));
 }
 
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
   std::unordered_set <pair_int> unchecked;
   std::vector<pair_int> to_erase;
-  bool intered = false;
+
   for (auto&& p : mp) {
     if(existed[p]) {
       bool ok = false;
+      bool flag = false;
       int u = p.id;
       int u_weight = p.w;
       if(u_weight >= max_merge_size) continue;
@@ -147,7 +128,15 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         float * merged_cluster_ = merge(res_, nn_pt, u_weight, std::get<2>(t));
         merged_cluster = flann::Matrix<float>(merged_cluster_, 1, dimension);
         print_array(merged_cluster_, 1, dimension, "merged");
-        merged_weight = std::min(u_weight + std::get<2>(t), size);
+
+        //merged_weight = std::min(u_weight + std::get<2>(t), max_merge_size);
+
+        if(flag) {
+          merged_weight = compute_merge_weight(u_weight, std::get<2>(t));
+        } else {
+          merged_weight = u_weight + std::get<2>(t);
+        }
+
         std::cout  << "u_weight " << u_weight << " get " << std::get<2>(t) << std::endl;
         merges.push_back({{u, u_weight}, {std::get<0>(t), std::get<2>(t)}});
 
@@ -161,6 +150,8 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           nnc.add_cluster(merged_cluster, merged_weight);
           auto p = nnc.query(merged_cluster, merged_weight, true);
           u = std::get<0>(p);
+          std::cout << merged_weight << " == " << std::get<2>(p) << std::endl;
+          assert(merged_weight == std::get<2>(p));
           u_weight = merged_weight;
           nnc.delete_cluster(u, u_weight);
           dict[{u, u_weight}] = {u, u_weight};
@@ -193,9 +184,10 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         if(nnn_pt == nullptr) break;
         print_array(nnn_pt, 1, dimension, "NN coords");
         if(dist < merge_value) {
-          free(res_);
+          //free(res_);
           res_ = merged_cluster_;
           res = merged_cluster;
+          flag = true;
         }
       }
 
@@ -223,6 +215,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 }
 
 void hierarchical_clustering::build_hierarchy() {
+
+  for(int i = 0; i < size; ++i) {
+    cluster_weight[{0, i}] = 1;
+  }
+
   float merge_value;
   for (int i = 0; i < beta; ++i) {
     merge_value = pow(1 + epsilon, i); // find an efficient one
@@ -261,9 +258,3 @@ void hierarchical_clustering::print_merges() {
     std::cout << toString(p.first) << " = "  << toString(p.second.first) << " + " << toString(p.second.second) << '\n';
   }
 }
-
-//
-// void hierarchical_clustering::dfs(pair_int root, int k) {
-//   if(dict )
-//
-// }
