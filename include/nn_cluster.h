@@ -36,4 +36,7 @@ private:
   std::vector<bool> build;
   std::vector<int> sizes;
   float distance(int size_a, int size_b, float dist);
+
+  std::vector<std::vector<int>> indices;
+  std::vector<std::vector<float>> dists;
 };

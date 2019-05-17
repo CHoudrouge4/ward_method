@@ -10,6 +10,7 @@
 #include "hierarchical_clustering.h"
 #include <time.h>
 #include <limits>
+#include <cmath>
 
 
 clock_t start;
@@ -19,6 +20,15 @@ clock_t elapsed = 0;
 inline void begin_record_time() { start = clock(); current = start; }
 inline void get_current_time() { current = clock(); }
 inline clock_t elapsed_time() { return current - start;}
+
+float power(float x, int y) {
+    if (y == 0)
+        return 1;
+    else if (y % 2 == 0)
+        return power(x, y / 2) * power(x, y / 2);
+    else
+        return x * power(x, y / 2) * power(x, y / 2);
+}
 
 float * read_file(const std::string file_name, int &n, int &m) {
   std::ifstream in(file_name);
@@ -138,30 +148,43 @@ void test_data_structure() {
 }
 
 void test_HC() {
-  int n = 10000;
-  int d = 2;
+  int n;
+  int d;
   //float * points = generate_random_matrix( n, d);
-  float * points = read_file("data.in", n , d);
+  float * points = read_file("iris.in", n , d);
 
   print_array(points, n, d);
 
   hierarchical_clustering hc(points, n, d, 0.5, 0.9);
 
-
   //free(points);
+  clock_t start = clock();
   hc.build_hierarchy();
-  auto merges = hc.get_merges();
-  for(auto p : merges) {
-    std::cout << (p.first).first << ' ' << (p.first).second << " # " << (p.second).first << ' ' << (p.second).second << '\n';
-  }
+  clock_t end = clock();
+  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+  // auto merges = hc.get_merges();
+  // for(auto p : merges) {
+  //   std::cout << (p.first).first << ' ' << (p.first).second << " # " << (p.second).first << ' ' << (p.second).second << '\n';
+  // }
 
   hc.print_merges();
 }
 
-int main () {
+float logb(float num, float base) {
+  return std::log10(num)/ std::log10(base);
+}
 
-  // test_data_structure();
+int main () {
+  std::cout << power(1.5, 129) << std::endl;
+  //test_data_structure();
   test_HC();
+
+  for(int i = 1; i <= 150; ++i) {
+    std::cout << "size " << i <<  " bucket " << floor(logb(i, 1.5)) << " bucket size " << power(1.5, floor(logb(i, 1.5))) << std::endl;
+  }
+
+
+
   // int n = 5;
   // int d = 2;
   // float * result = generate_random_matrix(n, d);

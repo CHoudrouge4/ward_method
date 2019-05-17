@@ -48,6 +48,7 @@ private:
   double max_dist;
   double min_dist;
   double beta;
+  int max_merge_size;
   std::unordered_set<std::pair<int, int>> unmerged_clusters;
 
   std::vector<int> pts_index;
@@ -58,8 +59,12 @@ private:
   float * merge(float * mu_a, float * mu_b, int size_a, int size_b);
 //  void read_file(const std::string);
   std::unordered_set<pair_int> helper(std::unordered_set<pair_int> &mp, float merge_value);
+  int compute_merge_weight(int x, int y);
+
   std::unordered_map<pair_int, pair_int> dict;
   std::unordered_map<pair_int, std::pair<pair_int, pair_int>> rep;
+
+  std::vector<pair_int> output;
 public:
   hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_);
   std::vector<std::pair<pair_int, pair_int>> get_merges() const;
