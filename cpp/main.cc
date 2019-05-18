@@ -156,7 +156,7 @@ void test_HC() {
   //float * points = generate_random_matrix( n, d);
   float * points = read_file("iris.in", n , d);
 
-  print_array(points, n, d);
+  //print_array(points, n, d);
 
   hierarchical_clustering hc(points, n, d, 0.5, 0.9);
 

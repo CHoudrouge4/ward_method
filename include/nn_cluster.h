@@ -44,7 +44,7 @@ public:
 
   int add_cluster(flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index );
 
-  void add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size);
+  std::tuple<int, float, int> add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size);
 
   void delete_cluster(int idx, int size);
 
