@@ -151,10 +151,10 @@ void test_data_structure() {
 }
 
 void test_HC() {
-  int n = 7;
+  int n = 10;
   int d = 2;
-//  float * points = generate_random_matrix( n, d);
-  float * points = read_file("data.in", n , d);
+  //float * points = generate_random_matrix( n, d);
+  float * points = read_file("iris.in", n , d);
 
   print_array(points, n, d);
 

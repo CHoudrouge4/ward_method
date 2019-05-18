@@ -156,7 +156,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           flag = true;
         }
       }
-
+      if(u_weight == size) break;
       if(!ok) {
         assert(res_ != nullptr);
         print_array(res_, 1, dimension, "failed : ");
