@@ -3,6 +3,7 @@
 #include "flann/io/hdf5.h"
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 
 typedef std::pair<int, int> pair_int;
 
@@ -15,6 +16,15 @@ namespace std {
     }
   };
 }
+
+struct pairhash {
+private:
+  const size_t num = 65537;
+public:
+  inline size_t operator()(const std::pair<int, int> &x) const {
+    return (x.first * num) ^ x.second;
+  }
+};
 
 class nnCluster {
 
@@ -42,11 +52,13 @@ public:
 
   int get_number_of_data_structures() const;
 
-  float compute_min_dist();
+  float compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed);
 
   pair_int get_index(int index, int weight);
 
   void update_dict(int new_idx, int new_weight, int old_idx, int old_weight);
+
+  void update_size(int ds_index, int new_index, int size);
 
   ~nnCluster();
 private:
@@ -64,5 +76,5 @@ private:
 
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
   std::unordered_map<pair_int, pair_int> dict;
-  std::unordered_map<pair_int, int> index_ds;
+  std::unordered_map<pair_int, int> idx_index;
 };

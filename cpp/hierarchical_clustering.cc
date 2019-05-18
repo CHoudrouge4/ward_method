@@ -47,9 +47,9 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, dou
   func_t func = (func_t)dlsym( lib, "radius_min_circle");
   double radius = func(n, d, (void *) data);
   max_dist = 4 * radius;
-  min_dist = nnc.compute_min_dist();
-  beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
   unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
+  min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
+  beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
   output.reserve(n - 1);
 }
 
@@ -75,29 +75,33 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       int u = p.id;
       int u_weight = p.w;
 
+      std::cout << "u: " << u << " u_weight " <<  u_weight << std::endl;
 
       float * res_ = (float *) malloc(dimension * sizeof(float));
       float * tmp = nnc.get_point(u, u_weight);
-      if(tmp == nullptr) std::cout << " tmp is nullptr" << std::endl;
+      //if(tmp == nullptr) std::cout << " tmp is nullptr" << std::endl;
       memcpy(res_, tmp, dimension * sizeof(float));
 
       flann::Matrix<float> res(res_, 1, dimension);
-      nnc.delete_cluster(u , u_weight);
+      nnc.delete_cluster(u, u_weight);
 
       print_array(res_, 1, dimension, "u coordinates before query ");
 
       auto t = nnc.query(res, u_weight);
+      std::cout << "t: " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
+
       float dist = std::get<1>(t); // getting the distance
+      int t_weight = std::get<2>(t);
 
       flann::Matrix<float> merged_cluster; // move to the outside later on
       int merged_weight;
       to_erase.push_back({u, u_weight});
-      int t_weight = {std::get<2>(t)};
 
       while (dist < merge_value) {
         ok = true;
+
         print_array(res_, 1, dimension, "u coordinates");
-        std::cout << "asking for " << std::get<0>(t) << ' ' <<  t_weight << std::endl;
+        std::cout << "before NN " << std::get<0>(t) << " " << t_weight << std::endl;
         float * nn_pt = nnc.get_point(std::get<0>(t), t_weight);
         print_array(nn_pt, 1, dimension, "NN coords");
 
@@ -108,53 +112,45 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
         merged_weight = u_weight + t_weight;
 
-        merges.push_back({{u, u_weight}, {std::get<0>(t), t_weight}});
+        //merges.push_back({{u, u_weight}, {std::get<0>(t), t_weight}});
 
         {
-          // register the merge
           int u_tmp = u;
           int weight_tmp = u_weight;
-          int idx = nnc.add_cluster(merged_cluster, merged_weight);
+          std::cout << "before add new" << std::endl;
+          nnc.add_new_cluster(merged_cluster, merged_weight);
           auto p = nnc.query(merged_cluster, merged_weight, true);
 
-          //cluster_weight[{idx, std::get<0>(p)}] = merged_weight;
-
           u = std::get<0>(p);
-
+          std::cout << " std::get 2 " << std::get<2>(p) << std::endl;
           u_weight = merged_weight;
           nnc.delete_cluster(u, u_weight);
 
-          //dict[{u, u_weight}] = {u, u_weight};
           nnc.update_dict(u, u_weight, u, u_weight);
-
-          std::cout << u << ' ' << u_weight << std::endl;
-          std::cout << toString({u, merged_weight}) << " = " << toString(dict[{u_tmp, weight_tmp}]) << " --> " << toString(dict[{std::get<0>(t), std::get<2>(t)}]) << std::endl;
-
-      //    rep[{u, merged_weight}] = std::make_pair(dict[{u_tmp, weight_tmp}], dict[{std::get<0>(t), std::get<2>(t)}]);
+          //std::cout << toString({u, merged_weight}) << " = " << toString(dict[{u_tmp, weight_tmp}]) << " --> " << toString(dict[{std::get<0>(t), std::get<2>(t)}]) << std::endl;
+          //rep[{u, merged_weight}] = std::make_pair(dict[{u_tmp, weight_tmp}], dict[{std::get<0>(t), std::get<2>(t)}]);
         }
 
-        // Deleting phase
-        // it is wrong because we dont have valid p
-        //if (u != -1) {
-          existed[p] = false;
-          to_erase.push_back({u, u_weight});
 
+        existed[p] = false;
+        to_erase.push_back({u, u_weight});
 
         existed[{std::get<0>(t), t_weight}] = false;
         to_erase.push_back({std::get<0>(t), t_weight});
         nnc.delete_cluster(std::get<0>(t), t_weight);
 
-        // swaping + continure on merging phase
-        // getting the neighbor of the merged guy
-        // the stuff of u has to be for merged
+        std::cout << ">>>> merged weight " <<  merged_weight << std::endl;
+        assert(merged_weight <= size);
+        if(merged_weight == size) break;
+
         t = nnc.query(merged_cluster, merged_weight);
         dist = std::get<1>(t);
         t_weight = std::get<2>(t);
+        std::cout << "before NNN " << std::get<0>(t) << ' ' << t_weight  << std::endl;
         float * nnn_pt = nnc.get_point(std::get<0>(t), t_weight);
         if(nnn_pt == nullptr) break;
-        print_array(nnn_pt, 1, dimension, "NN coords");
+        print_array(nnn_pt, 1, dimension, "NNN coords");
         if(dist < merge_value) {
-          //free(res_);
           res_ = merged_cluster_;
           res = merged_cluster;
           flag = true;
@@ -164,22 +160,28 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       if(!ok) {
         assert(res_ != nullptr);
         print_array(res_, 1, dimension, "failed : ");
-        nnc.add_cluster(res, u_weight);
+        int idx = nnc.add_cluster(res, u_weight);
         t = nnc.query(res, u_weight, true);
+        nnc.update_size(idx, std::get<0>(t), u_weight);
         t_weight = std::get<2>(t);
-      //  dict[{std::get<0>(t), t_weight} ] = dict[{u, u_weight}];
+        //dict[{std::get<0>(t), t_weight} ] = dict[{u, u_weight}];
         nnc.update_dict(std::get<0>(t), t_weight, u, u_weight);
-        std::cout << toString({std::get<0>(t), std::get<2>(t)}) << " --> " << toString(dict[{u, u_weight}]) << std::endl;
-        existed[{std::get<0>(t), std::get<2>(t)}] = true;
-        magic.insert({std::get<0>(t), std::get<2>(t)});
+        //std::cout << toString({std::get<0>(t), std::get<2>(t)}) << " --> " << toString(dict[{u, u_weight}]) << std::endl;
+        existed[{std::get<0>(t), u_weight}] = true;
+        magic.insert({std::get<0>(t), u_weight});
       } else {
-        nnc.add_cluster(merged_cluster, merged_weight);
+        std::cout << "else" << std::endl;
+        int idx = nnc.add_cluster(merged_cluster, merged_weight);
         auto tt = nnc.query(merged_cluster, merged_weight, true);
-        t_weight = {std::get<2>(tt)};
-        existed[{std::get<0>(tt), t_weight}] = true;
-        unchecked.insert({std::get<0>(tt), t_weight});
+        nnc.update_size(idx, std::get<0>(tt), merged_weight);
+
+        tt = nnc.query(merged_cluster, merged_weight, true);
+        std::cout << "else query true " << std::get<2>(tt) << std::endl;
+
+        existed[{std::get<0>(tt), merged_weight}] = true;
+        unchecked.insert({std::get<0>(tt), merged_weight});
         //dict[, std::get<2>(tt)}] = dict[{u, u_weight}];
-        nnc.update_dict(std::get<0>(tt), t_weight, u, u_weight);
+        nnc.update_dict(std::get<0>(tt), merged_weight, u, u_weight);
       }
     }
   }
@@ -189,11 +191,6 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 }
 
 void hierarchical_clustering::build_hierarchy() {
-
-  for(int i = 0; i < size; ++i) {
-    unmerged_clusters.insert({i, 1});
-    existed[{i, 1}] = true;
-  }
 
   float merge_value;
   for (int i = 0; i < beta; ++i) {

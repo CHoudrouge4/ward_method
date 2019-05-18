@@ -14,14 +14,7 @@ typedef std::pair<int, int> pair_int;
 /**
 * Hash function for the pair of integers.
 */
-struct pairhash {
-private:
-  const size_t num = 65537;
-public:
-  inline size_t operator()(const std::pair<int, int> &x) const {
-    return (x.first * num) ^ x.second;
-  }
-};
+
 
 class hierarchical_clustering {
 
