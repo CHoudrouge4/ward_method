@@ -1,3 +1,6 @@
+from sklearn import datasets
+from sklearn.cluster import AgglomerativeClustering
+from numpy import *
 
 def read_file(filename):
     f = open(filename, "r")
@@ -53,12 +56,77 @@ def clusters(tree, k):
 
     return [get_cluster(tree, nums[i]) for i in range(k)]
 
+def get_dataset(name):
+    from sklearn.preprocessing import scale
+    data = []
+    if name == "cancer":
+        from sklearn.datasets import load_breast_cancer
+        dataset = load_breast_cancer()
+    elif name == "digits":
+        from sklearn.datasets import load_digits
+        dataset = load_digits()
+    elif name == "iris":
+        from sklearn.datasets import load_iris
+        dataset = load_iris()
+    elif name == "boston":
+        from sklearn.datasets import load_boston
+        dataset = load_boston()
+    elif name == "KDD":
+        from sklearn.datasets import fetch_kddcup99
+        dataset = fetch_kddcup99(subset='SF')
+        data = dataset.data[:2000, [0,2,3]]
+    else:
+        print("Unknown name of dataset")
+        exit(-1)
+
+
+    labels = dataset.target
+    if data == []:
+        data = scale(dataset.data)
+        n_samples, n_features = data.shape
+        n_elements = len(unique(labels))
+    return data, n_elements, labels, len(set(labels))
+
 
 # example
 # t = [[0, -2], [1, -1], [2, -1], [3, -1], [4, -1], [0, 1], [2, 3], [5, 6], [7, 4]]
 
+# print(clusters(t, 3))
+from sklearn.datasets import load_iris
+from sklearn.metrics.cluster import normalized_mutual_info_score
+
+def convert(clusters, n):
+    clustering_vect = [0]*n
+    for i in range(len(clusters)):
+        for p in clusters[i]:
+            clustering_vect[p] = i
+    return clustering_vect
 
 
-t = read_file("output.in")
+data_sets = ["iris", "cancer", "digits", "boston"]
+for name in data_sets:
+    data, n, labels, k = get_dataset(name)
+    file_name = name + ".out"
+    T = read_file(file_name)
+    clust = clusters(T, k)
+    print("Mr Algo ", normalized_mutual_info_score(convert(clust, len(labels)), labels))
 
-print(clusters(t, 3))
+for name in data_sets:
+    data, n, labels, k = get_dataset(name)
+    print("k = ", k)
+    ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+    clustering = ward.fit(data)
+    clust = clustering.labels_
+    print("Mr Ward ", normalized_mutual_info_score(clust, labels))
+
+#T = read_file("output.in")
+#clust = clusters(T, 3)
+
+
+#digits = datasets.load_digits()
+#labels = digits.target
+#T = read_file('digits.out')
+#clust = clusters(T, 10)
+#print(normalized_mutual_info_score(convert(clust, len(labels)), labels))
+
+#wine = datasets.load_wine()
