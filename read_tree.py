@@ -7,7 +7,7 @@ def read_file(filename):
     lines = f.readlines()
     n = len(lines)+1
     nb_clust = n
-    print(n)
+    #print(n)
     clusters = {3*i*n+1: i for i in range(n)}
     T = [[i,-1] for i in range(n)]
     for l in lines:
@@ -103,30 +103,37 @@ def convert(clusters, n):
     return clustering_vect
 
 
-data_sets = ["iris", "cancer", "digits", "boston"]
+epsilon = 25
+numebr_of_trees = 16
+number_of_visited_leafs = 100
+print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
+
+data_sets = ["iris", "cancer", "boston", "digits"]
+#data_sets = ["digits"]
 for name in data_sets:
     data, n, labels, k = get_dataset(name)
-    file_name = name + ".out"
+    file_name = name + str(epsilon) + ".out"
     T = read_file(file_name)
     clust = clusters(T, k)
-    print("Mr Algo ", normalized_mutual_info_score(convert(clust, len(labels)), labels))
+    print("Algo ", normalized_mutual_info_score(convert(clust, len(labels)), labels))
 
 for name in data_sets:
     data, n, labels, k = get_dataset(name)
-    print("k = ", k)
     ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
     clustering = ward.fit(data)
     clust = clustering.labels_
-    print("Mr Ward ", normalized_mutual_info_score(clust, labels))
+    print("Ward ", normalized_mutual_info_score(clust, labels))
 
-#T = read_file("output.in")
-#clust = clusters(T, 3)
+for name in data_sets:
+    data, n, labels, k = get_dataset(name)
+    ward = AgglomerativeClustering(n_clusters=k, linkage='average', connectivity=None)
+    clustering = ward.fit(data)
+    clust = clustering.labels_
+    print("Average ", normalized_mutual_info_score(clust, labels))
 
-
-#digits = datasets.load_digits()
-#labels = digits.target
-#T = read_file('digits.out')
-#clust = clusters(T, 10)
-#print(normalized_mutual_info_score(convert(clust, len(labels)), labels))
-
-#wine = datasets.load_wine()
+for name in data_sets:
+    data, n, labels, k = get_dataset(name)
+    ward = AgglomerativeClustering(n_clusters=k, linkage='single', connectivity=None)
+    clustering = ward.fit(data)
+    clust = clustering.labels_
+    print("Single ", normalized_mutual_info_score(clust, labels))

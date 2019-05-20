@@ -12,7 +12,6 @@
 #include <limits>
 #include <cmath>
 
-
 clock_t start;
 clock_t current;
 clock_t elapsed = 0;
@@ -154,23 +153,26 @@ void test_HC() {
   int n;
   int d;
   //float * points = generate_random_matrix( n, d);
-  float * points = read_file("KDD.in", n , d);
+  std::vector<std::string> data = {"iris", "cancer", "digits", "boston"};
+  float epsilon;
+  std::cin >> epsilon;
+  for(auto&& data_name : data) {
+  //  std::string data_name = "iris";
+    float * points = read_file(data_name + ".in", n , d);
+    std::cout << "done reading" << std::endl;
 
-  //print_array(points, n, d);
 
-  hierarchical_clustering hc(points, n, d, 0.5, 0.9);
-
-  //free(points);
-  clock_t start = clock();
-  hc.build_hierarchy();
-  clock_t end = clock();
-  std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-  // auto merges = hc.get_merges();
-  // for(auto p : merges) {
-  //   std::cout << (p.first).first << ' ' << (p.first).second << " # " << (p.second).first << ' ' << (p.second).second << '\n';
-  // }
-
-  hc.print_merges();
+    hierarchical_clustering hc(points, n, d, epsilon, 0.9);
+    std::cout << "done initializing" << std::endl;
+    clock_t start = clock();
+    hc.build_hierarchy();
+    clock_t end = clock();
+    std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+    epsilon = epsilon * 100;
+    std::string output_file = data_name + std::to_string((int)floor((epsilon))) + ".out";
+    hc.print_file(output_file);
+    epsilon /= 100; 
+  }
 }
 
 float logb(float num, float base) {
@@ -180,72 +182,25 @@ float logb(float num, float base) {
 int main () {
   //test_data_structure();
   test_HC();
-
-  // for(int i = 1; i <= 150; ++i) {
-  //   std::cout << "size " << i <<  " bucket " << floor(logb(i, 1.5)) << " bucket size " << power(1.5, floor(logb(i, 1.5))) << std::endl;
-  // }
-
-
-
-  // int n = 5;
-  // int d = 2;
-  // float * result = generate_random_matrix(n, d);
-  //
-  // flann::Matrix<float> dataset(result, n, d);
-  // print_matrix(dataset, n, d);
-  //
-  // flann::Index<flann::L2<float>> index(dataset, flann::KDTreeIndexParams(4));
-  // index.buildIndex();
-  //
-  // std::vector<float> pt_(d);
-  // for(int i = 0; i < d; ++i)  {
-  //    pt_[i] = dataset[0][i];
-  //    std::cout << "1d : " << pt_[i] << '\n';
-  // }
-  //
-  //  void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
-  //  func_t func = (func_t)dlsym( lib, "radius_min_circle");
-  //  double radius = func(n, d, (void *) result);
-  //  std::cout << "radius " << radius << '\n';
-  //
-  // flann::Matrix<float> query(pt_.data(), 1, d);
-  //
-  // std::vector<std::vector<int>> indices;
-  // std::vector<std::vector<float>> dists;
-  //
-  // index.knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
-  //
-  // printing_result(indices, dists);
-  //
-  // index.removePoint(indices[0][0]);
-  //
-  // print_matrix(dataset, n, d);
-  //
-  // indices.clear();
-  // dists.clear();
-  //
-  // index.knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
-  // printing_result(indices, dists);
-  //
-  // index.addPoints(query);
-  //
-  // index.knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
-  // printing_result(indices, dists);
-  //
-  // index.removePoint(indices[0][0]);
-  //
-  // index.knnSearch(query, indices, dists, 1,  flann::SearchParams(128));
-  // printing_result(indices, dists);
-  // // index.addPoints(pt);
-  // //
-  // // for (int j = 0; j < d; ++j) {
-  // //   std::cout << pt[0][j] << ' ';
-  // // }
-  // // std::cout << '\n';
-  // //
-  // //
-  //
-  // delete [] dataset.ptr();
-  // delete [] query.ptr();
   return 0;
 }
+
+/**
+
+flann::Matrix<float> POINTS(points, n, d);
+const flann::AutotunedIndexParams params(0.8);
+std::vector<flann::AutotunedIndex<flann::L2<float>> *> nn_data_structures;
+flann::AutotunedIndex<flann::L2<float>> * ds = new flann::AutotunedIndex<flann::L2<float>> (POINTS, params);
+nn_data_structures.push_back(ds);
+nn_data_structures[0]->buildIndex();
+
+float * new_cluster_ = generate_random_matrix(1, d);
+flann::Matrix<float> q (new_cluster_, 1, d);
+std::vector<std::vector<float>> dist;
+std::vector<std::vector<size_t>> idx;
+
+nn_data_structures[0]->knnSearch(q, idx, dist, 1, flann::SearchParams(32));
+auto p = nn_data_structures[0]->getPoint(0);
+std::cout << p[0] << std::endl;
+
+**/

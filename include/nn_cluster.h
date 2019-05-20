@@ -4,6 +4,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <memory>
 
 typedef std::pair<int, int> pair_int;
 
@@ -31,7 +32,7 @@ class nnCluster {
 public:
 
   // Constructor
-  nnCluster (float * points_, int n, int d, double epsilon_, double gamma_);
+  nnCluster (float * points_, int n, int d, float epsilon_, float gamma_);
 
   std::tuple<int, float, int> query (const flann::Matrix<float> &query, int query_size, bool itself=false);
 
@@ -40,11 +41,11 @@ public:
   * cluster size
   *
   */
-  int add_cluster(flann::Matrix<float> &cluster, const int cluster_size);
+  int add_cluster(const flann::Matrix<float> &cluster, const int cluster_size);
 
-  int add_cluster(flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index );
+  int add_cluster(const flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index );
 
-  std::tuple<int, float, int> add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size);
+  std::tuple<int, float, int> add_new_cluster(const flann::Matrix<float> &cluster, const int cluster_size);
 
   void delete_cluster(int idx, int size);
 

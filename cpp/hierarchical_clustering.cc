@@ -31,13 +31,14 @@ void print_array (float * array, int n, int m, std::string msg) {
   }
   std::cout << "]" << '\n';
 }
+
 float log_base_(double num, double base) {
   return log(num)/ log(base);
 }
 
 extern "C" typedef double (*func_t)(int n, int d, void * array);
 
-hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, double epsilon_, double gamma_):
+hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_):
                                                                   nnc(data, n, d, epsilon_, gamma_), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
 
   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
@@ -47,10 +48,8 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, dou
   unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
   beta = ceil(log_base_((max_dist/min_dist) * n, 1 + epsilon)); // be carefull four the double / float
-  output.reserve(2 * n - 1);
-  for(int i = 0; i < size; ++i) {
-    output.push_back({i, -1});
-  }
+  output.reserve(n);
+  to_erase.reserve(n);
 }
 
 float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, int size_b) {
@@ -66,8 +65,6 @@ float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, i
 
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
   std::unordered_set <pair_int> unchecked;
-  std::vector<pair_int> to_erase;
-
   for (auto&& p : mp) {
     if(existed[p]) {
       bool ok = false;
@@ -77,10 +74,10 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
     //  std::cout << "u: " << u << " u_weight " <<  u_weight << std::endl;
 
-      float * res_ = (float *) malloc(dimension * sizeof(float));
-      float * tmp = nnc.get_point(u, u_weight);
+      //float * res_ = (float *) malloc(dimension * sizeof(float));
+      float * res_ = nnc.get_point(u, u_weight);
       //if(tmp == nullptr) std::cout << " tmp is nullptr" << std::endl;
-      memcpy(res_, tmp, dimension * sizeof(float));
+      //memcpy(res_, tmp, dimension * sizeof(float));
 
       flann::Matrix<float> res(res_, 1, dimension);
       nnc.delete_cluster(u, u_weight);
@@ -99,9 +96,8 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
 
       while (dist < merge_value) {
         ok = true;
-
         //print_array(res_, 1, dimension, "u coordinates");
-      //  std::cout << "before NN " << std::get<0>(t) << " " << t_weight << std::endl;
+        //std::cout << "before NN " << std::get<0>(t) << " " << t_weight << std::endl;
         float * nn_pt = nnc.get_point(std::get<0>(t), t_weight);
         //print_array(nn_pt, 1, dimension, "NN coords");
 
@@ -111,8 +107,6 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         //print_array(merged_cluster_, 1, dimension, "merged");
 
         merged_weight = u_weight + t_weight;
-
-        //merges.push_back({{u, u_weight}, {std::get<0>(t), t_weight}});
 
         {
           int u_tmp = u;
@@ -127,13 +121,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
           nnc.delete_cluster(u, u_weight);
 
           //nnc.update_dict(u, u_weight, u, u_weight);
-
-          std::cout << toString(nnc.get_index(u, u_weight)) << toString(nnc.get_index(u_tmp, weight_tmp)) << toString(nnc.get_index(std::get<0>(t), std::get<2>(t))) << std::endl;
-
+          //std::cout << toString(nnc.get_index(u, u_weight)) << toString(nnc.get_index(u_tmp, weight_tmp)) << toString(nnc.get_index(std::get<0>(t), std::get<2>(t))) << std::endl;
+          output.push_back(std::make_tuple(nnc.get_index(u, u_weight), nnc.get_index(u_tmp, weight_tmp), nnc.get_index(std::get<0>(t), std::get<2>(t))));
           //std::cout << toString({u, merged_weight}) << " = " << toString(dict[{u_tmp, weight_tmp}]) << " --> " << toString(dict[{std::get<0>(t), std::get<2>(t)}]) << std::endl;
           //rep[{u, merged_weight}] = std::make_pair(dict[{u_tmp, weight_tmp}], dict[{std::get<0>(t), std::get<2>(t)}]);
         }
-
 
         existed[p] = false;
         to_erase.push_back({u, u_weight});
@@ -143,8 +135,11 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         nnc.delete_cluster(std::get<0>(t), t_weight);
 
         //std::cout << ">>>> merged weight " <<  merged_weight << std::endl;
-        assert(merged_weight <= size);
-        if(merged_weight == size) break;
+        //assert(merged_weight <= size);
+        if(merged_weight == size) {
+          stop = true;
+          break;
+        }
 
         t = nnc.query(merged_cluster, merged_weight);
         dist = std::get<1>(t);
@@ -161,7 +156,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       }
       if(u_weight == size) break;
       if(!ok) {
-        assert(res_ != nullptr);
+        //assert(res_ != nullptr);
         //print_array(res_, 1, dimension, "failed : ");
         int idx = nnc.add_cluster(res, u_weight);
         t = nnc.query(res, u_weight, true);
@@ -190,6 +185,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
   }
 
   for(size_t i = 0; i < to_erase.size(); ++i) mp.erase(to_erase[i]);
+  to_erase.clear();
   return unchecked;
 }
 
@@ -204,12 +200,14 @@ void hierarchical_clustering::build_hierarchy() {
     while (ss.size() > 1) {
       auto tmp = helper(ss, merge_value);
       ss.clear();
-      for(auto p: tmp) {
+      for(auto&& p: tmp) {
         existed[p] = true;
         ss.insert(p);
       }
+      if(stop) break;
     }
 
+    if(stop) return;
     if(ss.size() == 1) unmerged_clusters.insert(*ss.begin());
     for(auto m: magic) unmerged_clusters.insert(m);
 
@@ -223,12 +221,14 @@ std::vector<std::pair<pair_int, pair_int>> hierarchical_clustering::get_merges()
 }
 
 void hierarchical_clustering::print_merges() {
-  for (auto&& p : merges) {
-    std::cout << dict[p.first].first << ' ' << dict[p.first].second << " || " <<
-    dict[p.second].first << ' ' << dict[p.second].second << '\n';
+  for (auto&& t: output) {
+    std::cout << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
   }
-  // p = ((), ((), ()))
-  for (auto&& p: rep) {
-    std::cout << toString(p.first) << " = "  << toString(p.second.first) << " + " << toString(p.second.second) << '\n';
-  }
+}
+
+void hierarchical_clustering::print_file(const std::string filename) {
+  std::ofstream out(filename);
+  for (auto&& t: output)
+    out << toString(std::get<0>(t)) << toString(std::get<1>(t)) << toString(std::get<2>(t)) << std::endl;
+  out.close();
 }

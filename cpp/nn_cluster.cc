@@ -28,21 +28,22 @@ float nnCluster::distance(int size_a, int size_b, float dist) {
   return coef * dist;
 }
 
-nnCluster::nnCluster(float * points_, int n, int d, double epsilon_, double gamma_):
+nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_):
       points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
 
-  number_of_data_structure = (int) floor(log_base(n, 1 + epsilon)) + 1;
-  flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(10));
-  build = std::vector<bool>(number_of_data_structure, false);
+	number_of_data_structure = (int) floor(log_base(n, 1 + epsilon)) + 1;
+	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
+	flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(16));
+	build = std::vector<bool>(number_of_data_structure, false);
 	sizes = std::vector<int> (number_of_data_structure, 0);
 	sizes[0] = n;
-  nn_data_structures.push_back(index);
-  nn_data_structures[0].buildIndex();
-  build[0] = true;
-  for (int i = 1; i < number_of_data_structure; ++i) {
-    flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(10));
-    nn_data_structures.push_back(tmp);
-  }
+	nn_data_structures.push_back(index);
+	nn_data_structures[0].buildIndex();
+	build[0] = true;
+	for (int i = 1; i < number_of_data_structure; ++i) {
+	  flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(16));
+	  nn_data_structures.push_back(tmp);
+	}
 }
 /**
 * output : id, distance, and weight (the true one)
@@ -53,7 +54,7 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   int res_index = 0;
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i] || sizes[i] <= 0) continue;
-		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(128));
+		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(100));
 		if(indices.size() == 0) continue;
 		if(indices[0].size() == 0) continue;
     int tmp_index = indices[0][0];
@@ -68,7 +69,6 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
       min_distance = tmp_dist;
       res = tmp_index;
       res_index = i;
-			//std::cout << "i " <<  i  << " tmp_dist " << tmp_dist <<  " res size " << res_index << std::endl;
 	  }
 
     indices[0].clear();
@@ -78,11 +78,10 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   return std::make_tuple(res, min_distance, cluster_weight[{res_index, res}]);
 }
 
-int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
+int nnCluster::add_cluster(const flann::Matrix<float> &cluster, int cluster_size) {
       int idx = floor(log_base(cluster_size, 1 + epsilon));
-	//		std::cout << " cluster size " << cluster_size << ' ' << idx << "/" << number_of_data_structure << std::endl;
-			assert(idx < number_of_data_structure);
-			assert(idx >= 0);
+			//assert(idx < number_of_data_structure);
+			//assert(idx >= 0);
 		  if (!build[idx]) {
         nn_data_structures[idx].buildIndex(cluster);
         build[idx] = true;
@@ -93,14 +92,14 @@ int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size) {
 			return idx;
 }
 
-int nnCluster::add_cluster(flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index) {
+int nnCluster::add_cluster(const flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index) {
 	int idx = add_cluster(cluster, cluster_size);
 	dict[{new_index, cluster_size}] = dict[{old_index, cluster_size}];
 	idx_index[{idx, new_index}] = idx_index[{idx, old_index}];
 	return idx;
 }
 
-std::tuple<int, float, int> nnCluster::add_new_cluster(flann::Matrix<float> &cluster, const int cluster_size) {
+std::tuple<int, float, int> nnCluster::add_new_cluster(const flann::Matrix<float> &cluster, const int cluster_size) {
 	int idx = add_cluster(cluster, cluster_size);
 	auto t = query(cluster, cluster_size, true);
 	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
@@ -111,19 +110,17 @@ std::tuple<int, float, int> nnCluster::add_new_cluster(flann::Matrix<float> &clu
 
 void nnCluster::delete_cluster(int idx, int size) {
   int i = floor(log_base(size, 1 + epsilon));// I think it is wrong
-	assert(i >= 0);
-	assert((size_t)i < nn_data_structures.size());
+	//assert(i >= 0);
+	//assert((size_t)i < nn_data_structures.size());
   nn_data_structures[i].removePoint(idx);
 	sizes[i] = sizes[i] - 1;
 }
 
 // this index should not be the first
 float * nnCluster::get_point(int idx, int size) {
-	//std::cout << "idx: " << idx << " size " << size << std::endl;
 	int i = (int) floor(log_base(size, 1 + epsilon));
-	//std::cout << "index ? " << i << std::endl;
-	assert(i < number_of_data_structure);
-	assert(i >= 0);
+	//assert(i < number_of_data_structure);
+	//assert(i >= 0);
   if(build[i]) {
     return nn_data_structures[i].getPoint(idx);
   } else {
@@ -176,4 +173,6 @@ void nnCluster::update_size(int ds_index, int new_index, int size) {
 
 nnCluster::~nnCluster() {
   delete [] points.ptr();
+	// for(size_t i = 0; i < nn_data_structures.size(); ++i)
+	// 	delete nn_data_structures[i];
 }
