@@ -28,12 +28,12 @@ float nnCluster::distance(int size_a, int size_b, float dist) {
   return coef * dist;
 }
 
-nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_):
-      points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_) {
+nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_, const size_t &tree_number, int visited_leaf_):
+      points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_), visited_leaf(visited_leaf) {
 
 	number_of_data_structure = (int) floor(log_base(n, 1 + epsilon)) + 1;
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
-	flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(16));
+	flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(tree_number));
 	build = std::vector<bool>(number_of_data_structure, false);
 	sizes = std::vector<int> (number_of_data_structure, 0);
 	sizes[0] = n;
@@ -41,10 +41,11 @@ nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_
 	nn_data_structures[0].buildIndex();
 	build[0] = true;
 	for (int i = 1; i < number_of_data_structure; ++i) {
-	  flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(16));
-	  nn_data_structures.push_back(tmp);
+	  //flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(tree_number));
+	  nn_data_structures.push_back(flann::KDTreeIndexParams(tree_number));
 	}
 }
+
 /**
 * output : id, distance, and weight (the true one)
 */
@@ -54,7 +55,7 @@ std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query,
   int res_index = 0;
   for (int i = 0; i < number_of_data_structure; ++i) {
     if (!build[i] || sizes[i] <= 0) continue;
-		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(100));
+		nn_data_structures[i].knnSearch(query, indices, dists, 1, flann::SearchParams(visited_leaf));
 		if(indices.size() == 0) continue;
 		if(indices[0].size() == 0) continue;
     int tmp_index = indices[0][0];

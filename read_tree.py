@@ -103,37 +103,43 @@ def convert(clusters, n):
     return clustering_vect
 
 
-epsilon = 25
+#epsilon = 200
 numebr_of_trees = 16
-number_of_visited_leafs = 100
-print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
+number_of_visited_leafs = 5
+#print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 
+#eps = [25, 50, 75, 85, 95, 200, 400];
+eps = [3500]
 data_sets = ["iris", "cancer", "boston", "digits"]
 #data_sets = ["digits"]
-for name in data_sets:
-    data, n, labels, k = get_dataset(name)
-    file_name = name + str(epsilon) + ".out"
-    T = read_file(file_name)
-    clust = clusters(T, k)
-    print("Algo ", normalized_mutual_info_score(convert(clust, len(labels)), labels))
+for e in eps:
+    output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
+    with open(output_file, 'w') as file:
+        file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
+        for name in data_sets:
+            data, n, labels, k = get_dataset(name)
+            file_name = name + str(e) + ".out"
+            T = read_file(file_name)
+            clust = clusters(T, k)
+            file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
 
-for name in data_sets:
-    data, n, labels, k = get_dataset(name)
-    ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-    clustering = ward.fit(data)
-    clust = clustering.labels_
-    print("Ward ", normalized_mutual_info_score(clust, labels))
+        for name in data_sets:
+            data, n, labels, k = get_dataset(name)
+            ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+            clustering = ward.fit(data)
+            clust = clustering.labels_
+            file.write('Ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
 
-for name in data_sets:
-    data, n, labels, k = get_dataset(name)
-    ward = AgglomerativeClustering(n_clusters=k, linkage='average', connectivity=None)
-    clustering = ward.fit(data)
-    clust = clustering.labels_
-    print("Average ", normalized_mutual_info_score(clust, labels))
+        for name in data_sets:
+            data, n, labels, k = get_dataset(name)
+            ward = AgglomerativeClustering(n_clusters=k, linkage='average', connectivity=None)
+            clustering = ward.fit(data)
+            clust = clustering.labels_
+            file.write('Average ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
 
-for name in data_sets:
-    data, n, labels, k = get_dataset(name)
-    ward = AgglomerativeClustering(n_clusters=k, linkage='single', connectivity=None)
-    clustering = ward.fit(data)
-    clust = clustering.labels_
-    print("Single ", normalized_mutual_info_score(clust, labels))
+        for name in data_sets:
+            data, n, labels, k = get_dataset(name)
+            ward = AgglomerativeClustering(n_clusters=k, linkage='single', connectivity=None)
+            clustering = ward.fit(data)
+            clust = clustering.labels_
+            file.write('Single ' + str(normalized_mutual_info_score(clust, labels)) + '\n')

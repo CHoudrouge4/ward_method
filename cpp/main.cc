@@ -144,7 +144,7 @@ void test_data_structure() {
   float * points = generate_random_matrix(n, d);
   double epsilon = 0.5;
   double gamma = 0.9;
-  nnCluster index(points, n, d, epsilon, gamma);
+  nnCluster index(points, n, d, epsilon, gamma, 16, 4);
   //index.compute_min_dist();
   //test_add_delete_cluster(index, n, d);
 }
@@ -162,7 +162,7 @@ void test_HC() {
     std::cout << "done reading" << std::endl;
 
 
-    hierarchical_clustering hc(points, n, d, epsilon, 0.9);
+    hierarchical_clustering hc(points, n, d, epsilon, 0.9, 16, 4);
     std::cout << "done initializing" << std::endl;
     clock_t start = clock();
     hc.build_hierarchy();
@@ -171,7 +171,7 @@ void test_HC() {
     epsilon = epsilon * 100;
     std::string output_file = data_name + std::to_string((int)floor((epsilon))) + ".out";
     hc.print_file(output_file);
-    epsilon /= 100; 
+    epsilon /= 100;
   }
 }
 

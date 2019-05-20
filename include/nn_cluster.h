@@ -32,7 +32,7 @@ class nnCluster {
 public:
 
   // Constructor
-  nnCluster (float * points_, int n, int d, float epsilon_, float gamma_);
+  nnCluster (float * points_, int n, int d, float epsilon_, float gamma_, const size_t &tree_number, int visited_leaf_);
 
   std::tuple<int, float, int> query (const flann::Matrix<float> &query, int query_size, bool itself=false);
 
@@ -64,8 +64,9 @@ public:
   ~nnCluster();
 private:
   flann::Matrix<float> points;
-  int size, dimension, number_of_data_structure;
+  int size, dimension, number_of_data_structure, visited_leaf;
   double epsilon, gamma;
+
 
   std::vector<flann::Index<flann::L2<float>>> nn_data_structures;
   std::vector<bool> build;

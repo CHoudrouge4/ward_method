@@ -38,8 +38,8 @@ float log_base_(double num, double base) {
 
 extern "C" typedef double (*func_t)(int n, int d, void * array);
 
-hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_):
-                                                                  nnc(data, n, d, epsilon_, gamma_), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
+hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_, int tree_number, int visited_leaf):
+                                                                  nnc(data, n, d, epsilon_, gamma_, tree_number, visited_leaf), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
 
   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
   func_t func = (func_t)dlsym( lib, "radius_min_circle");

@@ -48,7 +48,7 @@ private:
 
   std::vector<pair_int> to_erase;
 public:
-  hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_);
+  hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_, int tree_number, int visited_leaf);
   std::vector<std::pair<pair_int, pair_int>> get_merges() const;
   void print_merges();
   void build_hierarchy();

@@ -4,10 +4,10 @@ from numpy.random import *
 import time
 from datetime import datetime
 
-X = rand(20000,2)
+X = rand(1797, 64)
 
 
-n_clusters = 2
+n_clusters = 1
 ward = AgglomerativeClustering(n_clusters=n_clusters, linkage='ward',
                                 connectivity=None)
 start = time.time()
