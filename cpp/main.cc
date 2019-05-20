@@ -72,7 +72,7 @@ void print_array (float * array, int n, int m) {
 float * generate_random_matrix(int n, int m) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(1.0, 5.0);
+  std::uniform_real_distribution<> dis(-10.0, 10.0);
   float * array = (float *) malloc(n * m * sizeof(float));
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; ++j) {
