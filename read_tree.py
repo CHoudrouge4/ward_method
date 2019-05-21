@@ -105,12 +105,12 @@ def convert(clusters, n):
 
 #epsilon = 200
 numebr_of_trees = 16
-number_of_visited_leafs = 5
+number_of_visited_leafs = 128
 #print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 
 #eps = [25, 50, 75, 85, 95, 200, 400];
-eps = [3500]
-data_sets = ["iris", "cancer", "boston", "digits"]
+eps = [400]
+data_sets = ["iris", "cancer", "digits", "boston"]
 #data_sets = ["digits"]
 for e in eps:
     output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
@@ -118,7 +118,7 @@ for e in eps:
         file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
         for name in data_sets:
             data, n, labels, k = get_dataset(name)
-            file_name = name + str(e) + ".out"
+            file_name = './data/' + name + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
             T = read_file(file_name)
             clust = clusters(T, k)
             file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
@@ -143,3 +143,29 @@ for e in eps:
             clustering = ward.fit(data)
             clust = clustering.labels_
             file.write('Single ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+
+
+
+# def readFILE(file_name):
+#     with open(file_name) as f:
+#         content = f.readline()
+#         content = content.split(' ')
+#         n = int(content[0])
+#         d = int(content[1])
+#         k = int(content[2])
+#         X = zeros((n, d))
+#         for i in range(n):
+#             content = f.readline()
+#             content = content.split(' ')
+#             for j in range(d):
+#                 X[i, j] = float(content[j])
+#         return X
+#
+# data = readFILE("./data/data10000_0_100.in")
+# ward = AgglomerativeClustering(n_clusters=100, linkage='ward', connectivity=None)
+# clustering = ward.fit(data)
+# labels = clustering.labels_
+# file_name = './data/data10000_0_10050.out'
+# T = read_file(file_name)
+# clust = clusters(T, 100)
+# print(normalized_mutual_info_score(convert(clust, len(labels)), labels))

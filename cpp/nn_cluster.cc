@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 	}
 }
 
-float log_base(float num, float base) { return std::log10(num) / std::log10(base); }
+float log_base(float num, float base) { return std::log(num) / std::log(base); }
 
 float nnCluster::distance(int size_a, int size_b, float dist) {
   float coef = size_a * size_b;

@@ -31,6 +31,7 @@ float power(float x, int y) {
 
 float * read_file(const std::string file_name, int &n, int &m) {
   std::ifstream in(file_name);
+  int k;
   in >> n >> m;
   float * array = (float *) malloc(n * m * sizeof(float));
   for (int i = 0; i < n; ++i) {
@@ -153,23 +154,23 @@ void test_HC() {
   int n;
   int d;
   //float * points = generate_random_matrix( n, d);
-  std::vector<std::string> data = {"iris", "cancer", "digits", "boston"};
+  std::vector<std::string> data = {"./data/iris", "./data/cancer", "./data/digits", "./data/boston"};
   float epsilon;
   std::cin >> epsilon;
+  std::cout << "epsilon read" << std::endl;
   for(auto&& data_name : data) {
-  //  std::string data_name = "iris";
+  //  std::string data_name = "./data/data10000_0_100";
     float * points = read_file(data_name + ".in", n , d);
     std::cout << "done reading" << std::endl;
 
-
-    hierarchical_clustering hc(points, n, d, epsilon, 0.9, 16, 4);
+    hierarchical_clustering hc(points, n, d, epsilon, 0.9, 16, 128);
     std::cout << "done initializing" << std::endl;
     clock_t start = clock();
     hc.build_hierarchy();
     clock_t end = clock();
     std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
     epsilon = epsilon * 100;
-    std::string output_file = data_name + std::to_string((int)floor((epsilon))) + ".out";
+    std::string output_file = data_name + std::to_string((int)floor((epsilon))) + "_" + std::to_string(16) + "_"  + std::to_string(128) + ".out";
     hc.print_file(output_file);
     epsilon /= 100;
   }
