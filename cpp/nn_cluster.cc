@@ -177,3 +177,32 @@ nnCluster::~nnCluster() {
 	// for(size_t i = 0; i < nn_data_structures.size(); ++i)
 	// 	delete nn_data_structures[i];
 }
+
+float nnCluster::compute_max_dist(float * points, int n, int d) {
+	float * max_pt = (float *) malloc(d * sizeof(float));
+	float * min_pt = (float *) malloc(d * sizeof(float));
+
+	for (int i = 0; i < d; ++i) {
+		* (max_pt + i) = std::numeric_limits<float>::min();
+		* (min_pt + i) = std::numeric_limits<float>::max();
+ 	}
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < d; j++) {
+			* (max_pt + j) = std::max(*(points + i * d + j), *(max_pt + j));
+			* (min_pt + j) = std::min(*(points + i * d + j), *(min_pt + j));
+		}
+	}
+
+	float dist = 0.0;
+	float x, y;
+	for (int i = 0; i < d; ++i) {
+		x = * (max_pt + i);
+		y = * (min_pt + i);
+		dist += (x - y) * (x - y) + (x - y) * (x - y);
+	}
+
+	free(max_pt);
+	free(min_pt);
+	return dist;
+}

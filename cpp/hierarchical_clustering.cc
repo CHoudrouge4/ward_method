@@ -43,9 +43,11 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, flo
 
   void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
   func_t func = (func_t)dlsym( lib, "radius_min_circle");
-  double radius = func(n, d, (void *) data);
+  //double radius = func(n, d, (void *) data);
+  //max_dist = 4 * radius;
+  max_dist = nnc.compute_max_dist(data, n, d);
   std::cout << "done computing max distance" << std::endl;
-  max_dist = 4 * radius;
+  //std::cout << max_dist << ' ' <<  << std::endl;
   unmerged_clusters.max_load_factor(std::numeric_limits<float>::infinity());
   min_dist = nnc.compute_min_dist(unmerged_clusters, existed);
   std::cout << "done computing min distance" << std::endl;

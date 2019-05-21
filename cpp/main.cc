@@ -163,7 +163,7 @@ void test_HC() {
     float * points = read_file(data_name + ".in", n , d);
     std::cout << "done reading" << std::endl;
 
-    hierarchical_clustering hc(points, n, d, epsilon, 0.9, 16, 128);
+    hierarchical_clustering hc(points, n, d, epsilon, 0.9, 4, 3);
     std::cout << "done initializing" << std::endl;
     clock_t start = clock();
     hc.build_hierarchy();

@@ -55,6 +55,8 @@ public:
 
   float compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed);
 
+  float compute_max_dist(float * points, int n, int d);
+
   pair_int get_index(int index, int weight);
 
   void update_dict(int new_idx, int new_weight, int old_idx, int old_weight);
@@ -65,7 +67,7 @@ public:
 private:
   flann::Matrix<float> points;
   int size, dimension, number_of_data_structure, visited_leaf;
-  double epsilon, gamma;
+  double epsilon, gamma, max_distance;
 
 
   std::vector<flann::Index<flann::L2<float>>> nn_data_structures;
