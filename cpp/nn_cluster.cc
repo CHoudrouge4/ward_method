@@ -20,9 +20,9 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 	}
 }
 
-float log_base(float num, float base) { return std::log(num) / std::log(base); }
+inline float log_base(float num, float base) { return std::log(num) / std::log(base); }
 
-float nnCluster::distance(int size_a, int size_b, float dist) {
+inline float nnCluster::distance(int size_a, int size_b, float dist) {
   float coef = size_a * size_b;
   coef = coef/(size_a + size_b);
   return coef * dist;
@@ -31,7 +31,7 @@ float nnCluster::distance(int size_a, int size_b, float dist) {
 nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_, const size_t &tree_number, int visited_leaf_):
       points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_), visited_leaf(visited_leaf) {
 
-	number_of_data_structure = (int) floor(log_base(n, 1 + epsilon)) + 1;
+	number_of_data_structure = (int) ceil(log_base(n, 1 + epsilon)) + 5;
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 	flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(tree_number));
 	build = std::vector<bool>(number_of_data_structure, false);
@@ -104,7 +104,6 @@ std::tuple<int, float, int> nnCluster::add_new_cluster(const flann::Matrix<float
 	int idx = add_cluster(cluster, cluster_size);
 	auto t = query(cluster, cluster_size, true);
 	dict[{std::get<0>(t), cluster_size}] = {std::get<0>(t), cluster_size};
-	//std::cout << "new_idx " << std::get<0>(t) << " new_weight " << cluster_size << std::endl;
 	cluster_weight[{idx, std::get<0>(t)}] = cluster_size;
 	return {std::get<0>(t), std::get<1>(t), cluster_size};
 }
@@ -117,7 +116,6 @@ void nnCluster::delete_cluster(int idx, int size) {
 	sizes[i] = sizes[i] - 1;
 }
 
-// this index should not be the first
 float * nnCluster::get_point(int idx, int size) {
 	int i = (int) floor(log_base(size, 1 + epsilon));
 	//assert(i < number_of_data_structure);
@@ -178,7 +176,7 @@ nnCluster::~nnCluster() {
 	// 	delete nn_data_structures[i];
 }
 
-float nnCluster::compute_max_dist(float * points, int n, int d) {
+float nnCluster::compute_max_dist(const float * points, const int n, const int d) {
 	float * max_pt = (float *) malloc(d * sizeof(float));
 	float * min_pt = (float *) malloc(d * sizeof(float));
 

@@ -1,6 +1,7 @@
 from sklearn import datasets
 from sklearn.cluster import AgglomerativeClustering
 from numpy import *
+import time
 
 def read_file(filename):
     f = open(filename, "r")
@@ -104,68 +105,101 @@ def convert(clusters, n):
 
 
 #epsilon = 200
-numebr_of_trees = 16
-number_of_visited_leafs = 128
-#print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
-
-#eps = [25, 50, 75, 85, 95, 200, 400];
-eps = [400]
-data_sets = ["iris", "cancer", "digits", "boston"]
-#data_sets = ["digits"]
-for e in eps:
-    output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
-    with open(output_file, 'w') as file:
-        file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
-        for name in data_sets:
-            data, n, labels, k = get_dataset(name)
-            file_name = './data/' + name + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
-            T = read_file(file_name)
-            clust = clusters(T, k)
-            file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
-
-        for name in data_sets:
-            data, n, labels, k = get_dataset(name)
-            ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-            clustering = ward.fit(data)
-            clust = clustering.labels_
-            file.write('Ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
-
-        for name in data_sets:
-            data, n, labels, k = get_dataset(name)
-            ward = AgglomerativeClustering(n_clusters=k, linkage='average', connectivity=None)
-            clustering = ward.fit(data)
-            clust = clustering.labels_
-            file.write('Average ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
-
-        for name in data_sets:
-            data, n, labels, k = get_dataset(name)
-            ward = AgglomerativeClustering(n_clusters=k, linkage='single', connectivity=None)
-            clustering = ward.fit(data)
-            clust = clustering.labels_
-            file.write('Single ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
-
-
-
-# def readFILE(file_name):
-#     with open(file_name) as f:
-#         content = f.readline()
-#         content = content.split(' ')
-#         n = int(content[0])
-#         d = int(content[1])
-#         k = int(content[2])
-#         X = zeros((n, d))
-#         for i in range(n):
-#             content = f.readline()
-#             content = content.split(' ')
-#             for j in range(d):
-#                 X[i, j] = float(content[j])
-#         return X
+# numebr_of_trees = 16
+# number_of_visited_leafs = 128
+# #print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 #
-# data = readFILE("./data/data10000_0_100.in")
-# ward = AgglomerativeClustering(n_clusters=100, linkage='ward', connectivity=None)
+# #eps = [25, 50, 75, 85, 95, 200, 400];
+# eps = [400]
+# data_sets = ["iris", "cancer", "digits", "boston"]
+# #data_sets = ["digits"]
+# for e in eps:
+#     output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
+#     with open(output_file, 'w') as file:
+#         file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
+#         for name in data_sets:
+#             data, n, labels, k = get_dataset(name)
+#             file_name = './data/' + name + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
+#             T = read_file(file_name)
+#             clust = clusters(T, k)
+#             file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
+#
+#         for name in data_sets:
+#             data, n, labels, k = get_dataset(name)
+#             ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+#             clustering = ward.fit(data)
+#             clust = clustering.labels_
+#             file.write('Ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+#
+#         for name in data_sets:
+#             data, n, labels, k = get_dataset(name)
+#             ward = AgglomerativeClustering(n_clusters=k, linkage='average', connectivity=None)
+#             clustering = ward.fit(data)
+#             clust = clustering.labels_
+#             file.write('Average ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+#
+#         for name in data_sets:
+#             data, n, labels, k = get_dataset(name)
+#             ward = AgglomerativeClustering(n_clusters=k, linkage='single', connectivity=None)
+#             clustering = ward.fit(data)
+#             clust = clustering.labels_
+#             file.write('Single ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
+
+
+
+def readFILE(file_name):
+    with open(file_name) as f:
+        content = f.readline()
+        content = content.split(' ')
+        n = int(content[0])
+        d = int(content[1])
+        #k = int(content[2])
+        X = zeros((n, d))
+        for i in range(n):
+            content = f.readline()
+            content = content.split(' ')
+            for j in range(d):
+                X[i, j] = float(content[j])
+        return X
+
+
+
+  #
+  # std::vector<int> trees = {4 , 16};
+  # std::vector<int> leaves = {5, 128};
+  # std::vector<float> epsilons = {0.5, 1, 7};
+
+trees = [4, 16]
+leaves = [5, 128]
+epsilons = [50, 200, 500]
+d = 2
+k = 10
+ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+with open('ward_accuracy1.txt', 'w') as f:
+    for e in epsilons:
+        for t in trees:
+            for l in leaves:
+                for i in range(1000, 10000, 500):
+                    for j in range(10):
+                        data_file = './data/data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '.in'
+                        data = readFILE(data_file)
+                        start = time.time()
+                        clustering = ward.fit(data)
+                        end = time.time()
+                        labels = clustering.labels_
+                        res_file = 'data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '_' + str(e) + '_' + str(t) + '_' + str(l) + '.out'
+                        T = read_file(res_file)
+                        clust = clusters(T, k);
+                        acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
+                        f.write(str(end - start) + ' ' + str(acc) + ' ')
+                    f.write('\n')
+
+#
+# data = readFILE("./data/data10000_50_50.in")
 # clustering = ward.fit(data)
+# #random.shuffle(data)
 # labels = clustering.labels_
-# file_name = './data/data10000_0_10050.out'
+# file_name = './data/data10000_50_50200_8_200.out'
 # T = read_file(file_name)
 # clust = clusters(T, 100)
 # print(normalized_mutual_info_score(convert(clust, len(labels)), labels))

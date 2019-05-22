@@ -55,7 +55,7 @@ public:
 
   float compute_min_dist(std::unordered_set<pair_int> &unmerged_clusters, std::unordered_map<pair_int, bool, pairhash> &existed);
 
-  float compute_max_dist(float * points, int n, int d);
+  float compute_max_dist(const float * points, const int n, const int d);
 
   pair_int get_index(int index, int weight);
 

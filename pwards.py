@@ -12,7 +12,7 @@ def read_file(file_name):
         content = content.split(' ')
         n = int(content[0])
         d = int(content[1])
-        k = int(content[2])
+        #k = int(content[2])
         X = zeros((n, d))
         for i in range(n):
             content = f.readline()
@@ -20,7 +20,7 @@ def read_file(file_name):
             for j in range(d):
                 X[i, j] = float(content[j])
         return X
-X = read_file("./data/data10000_0_100.in")
+X = read_file("./data/data10000_100_100.in")
 
 n_clusters = 1
 ward = AgglomerativeClustering(n_clusters=n_clusters, linkage='ward', connectivity=None)
