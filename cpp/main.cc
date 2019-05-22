@@ -227,7 +227,7 @@ float logb(float num, float base) {
 int main () {
   // test_data_structure();
   // test_HC();
-  the_big_exp();
+  //the_big_exp();
   return 0;
 }
 
