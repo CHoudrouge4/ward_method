@@ -169,18 +169,20 @@ def readFILE(file_name):
   # std::vector<int> leaves = {5, 128};
   # std::vector<float> epsilons = {0.5, 1, 7};
 
-trees = [4, 16]
-leaves = [5, 128]
-epsilons = [50, 200, 500]
-d = 2
+trees = [2]
+leaves = [10]
+epsilons = [800]
+d = 20
 k = 10
 ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-with open('ward_accuracy1.txt', 'w') as f:
+with open('ward_accuracy7.txt', 'w') as f:
     for e in epsilons:
         for t in trees:
             for l in leaves:
-                for i in range(1000, 10000, 500):
-                    for j in range(10):
+                for i in range(10000, 20000, 1000):
+                    for j in range(1):
+                        if i == 18000:
+                            j = 1
                         data_file = './data/data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '.in'
                         data = readFILE(data_file)
                         start = time.time()
@@ -191,15 +193,17 @@ with open('ward_accuracy1.txt', 'w') as f:
                         T = read_file(res_file)
                         clust = clusters(T, k);
                         acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
+                        print(str(end - start))
                         f.write(str(end - start) + ' ' + str(acc) + ' ')
                     f.write('\n')
 
 #
-# data = readFILE("./data/data10000_50_50.in")
-# clustering = ward.fit(data)
-# #random.shuffle(data)
-# labels = clustering.labels_
-# file_name = './data/data10000_50_50200_8_200.out'
+#data = readFILE("./data/iris.in")
+#clustering = ward.fit(data)
+#random.shuffle(data)
+#labels = clustering.labels_
+# data, n, labels, k = get_dataset('boston')
+# file_name = './data/boston800_2_10.out'
 # T = read_file(file_name)
-# clust = clusters(T, 100)
+# clust = clusters(T, k)
 # print(normalized_mutual_info_score(convert(clust, len(labels)), labels))

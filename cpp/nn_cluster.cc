@@ -29,13 +29,17 @@ inline float nnCluster::distance(int size_a, int size_b, float dist) {
 }
 
 nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_, const size_t &tree_number, int visited_leaf_):
-      points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_), visited_leaf(visited_leaf) {
+      points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_), visited_leaf(visited_leaf_) {
 
-	number_of_data_structure = (int) ceil(log_base(n, 1 + epsilon)) + 5;
+	//std::cout << "n " << n << std::endl;
+	assert(visited_leaf == visited_leaf_);
+	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
+	number_of_data_structure = (std::max(nb_ds, 1) )* 2 + 5;
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
 	flann::Index<flann::L2<float>> index(points, flann::KDTreeIndexParams(tree_number));
 	build = std::vector<bool>(number_of_data_structure, false);
 	sizes = std::vector<int> (number_of_data_structure, 0);
+	nn_data_structures.reserve(number_of_data_structure);
 	sizes[0] = n;
 	nn_data_structures.push_back(index);
 	nn_data_structures[0].buildIndex();
@@ -109,7 +113,7 @@ std::tuple<int, float, int> nnCluster::add_new_cluster(const flann::Matrix<float
 }
 
 void nnCluster::delete_cluster(int idx, int size) {
-  int i = floor(log_base(size, 1 + epsilon));// I think it is wrong
+  int i = (int) floor(log_base(size, 1 + epsilon));// I think it is wrong
 	//assert(i >= 0);
 	//assert((size_t)i < nn_data_structures.size());
   nn_data_structures[i].removePoint(idx);
@@ -118,6 +122,7 @@ void nnCluster::delete_cluster(int idx, int size) {
 
 float * nnCluster::get_point(int idx, int size) {
 	int i = (int) floor(log_base(size, 1 + epsilon));
+//	std::cout << idx << ' ' << size << std::endl;
 	//assert(i < number_of_data_structure);
 	//assert(i >= 0);
   if(build[i]) {

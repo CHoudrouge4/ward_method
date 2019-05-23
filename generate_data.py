@@ -2,8 +2,8 @@ from sklearn.datasets.samples_generator import make_blobs
 from random import *
 from numpy import *
 
-range_from = -1000
-range_to = 1000
+range_from = -100
+range_to = 100
 
 # c is the number of cluster
 # d is the dimension
@@ -33,12 +33,12 @@ def generate_random_clusters(c, d):
 """
     we can loop over the dimension, then over the number of points
 """
-number_of_data = 10
-dimensions = {2}
-max_n = 10000
+number_of_data = 3
+dimensions = {20}
+max_n = 20000
 nb_center = 10
 for d in dimensions:
-    for n in range(1000, max_n, 500):
+    for n in range(10000, max_n, 1000):
         for i in range(number_of_data):
             centers = generate_random_clusters(nb_center, d)
             X, y = make_blobs(n_samples=n, n_features=d, centers=centers, cluster_std=0.8, center_box=(range_from, range_to), shuffle=True, random_state=0)

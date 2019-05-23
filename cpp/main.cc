@@ -154,11 +154,11 @@ void test_HC() {
   int n;
   int d;
   //float * points = generate_random_matrix( n, d);
-  //std::vector<std::string> data = {"./data/iris", "./data/cancer", "./data/digits", "./data/boston"};
+  std::vector<std::string> data = {"./data/iris", "./data/cancer", "./data/digits", "./data/boston"};
 
-  const int trees = 8;
-  const int leaves = 200;
-  std::vector<std::string> data = {"./data/data10000_50_50"};
+  const int trees = 2;
+  const int leaves = 10;
+  //std::vector<std::string> data = {"./data/boston.in"};
   float epsilon;
   std::cin >> epsilon;
   std::cout << "epsilon read" << std::endl;
@@ -183,33 +183,43 @@ void test_HC() {
 
 void the_big_exp() {
   int n;
-  int d = 2;
+  int d = 20;
   int k = 10;
-  std::ofstream out("perf.txt", std::ios_base::app);
-  std::vector<int> trees = {4 , 16};
-  std::vector<int> leaves = {5, 128};
-  std::vector<float> epsilons = {5};
-
+  std::ofstream out("perfs7.txt", std::ios_base::app);
+  std::vector<int> trees = {2};
+  std::vector<int> leaves = {10};
+  std::vector<float> epsilons = {8};
+  //data5000_8_100_10_
   for (auto&& e: epsilons) {
+  //  int e = 7;
     for (auto&& tr: trees) {
+    //  int tr = 4;
       for(auto&& l: leaves) {
-        for (int i = 1000; i < 10000; i += 500) {
-          out << e << ' ' << tr << ' ' << l << ' ' << i << ' ' << d;
-          for (int j = 0; j < 10; ++j) {
-            std::string data_name = "data" + std::to_string(i) + '_' + std::to_string(j) + '_' + std::to_string(d) + '_' + std::to_string(k);
-            std::string file_name = "./data/" + data_name + ".in";
-            float * points = read_file(file_name, n, d);
-            //std::cout << "done reading" << std::endl;
-            hierarchical_clustering hc(points, n, d, e, 0.9, tr, l);
-            //std::cout << "done initializing" << std::endl;
-            clock_t start = clock();
-            hc.build_hierarchy();
-            clock_t end = clock();
-            out << ' ' << (float)(end - start)/CLOCKS_PER_SEC;
-            float epsilon = e * 100;
-            std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
-            std::cout << output_file << std::endl;
-            hc.print_file(output_file);
+        // int l = 1;
+         for (int i = 10000; i < 20000; i += 1000) {
+        //  int i = 13000;
+
+            out << e << ' ' << tr << ' ' << l << ' ' << i << ' ' << d;
+            for (int j = 0; j < 1; ++j) {
+
+              if(i == 18000) {j = 1;}
+          //    int j = 7;
+              std::string data_name = "data" + std::to_string(i) + '_' + std::to_string(j) + '_' + std::to_string(d) + '_' + std::to_string(k);
+              std::string file_name = "./data/" + data_name + ".in";
+              float epsilon = e * 100;
+              std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
+              std::cout << output_file << std::endl;
+
+              float * points = read_file(file_name, n, d);
+              //std::cout << "done reading" << std::endl;
+              hierarchical_clustering hc(points, i, d, e, 0.9, tr, l);
+              //std::cout << "done initializing" << std::endl;
+              clock_t start = clock();
+              hc.build_hierarchy();
+              clock_t end = clock();
+              out << ' ' << (float)(end - start)/CLOCKS_PER_SEC;
+              std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+              hc.print_file(output_file);
           }
           out << std::endl;
         }
@@ -225,9 +235,9 @@ float logb(float num, float base) {
 }
 
 int main () {
-  // test_data_structure();
-  // test_HC();
-  //the_big_exp();
+  //test_data_structure();
+  //test_HC();
+  the_big_exp();
   return 0;
 }
 

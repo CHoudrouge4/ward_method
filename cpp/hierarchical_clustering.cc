@@ -39,7 +39,11 @@ inline float log_base_(double num, double base) {
 extern "C" typedef double (*func_t)(int n, int d, void * array);
 
 hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, float epsilon_, float gamma_, int tree_number, int visited_leaf):
-                                                                  nnc(data, n, d, epsilon_, gamma_, tree_number, visited_leaf), dimension(d), size(n), epsilon(epsilon_), gamma(gamma_) {
+                                                                  nnc(data, n, d, epsilon_, gamma_, tree_number, visited_leaf),
+                                                                  dimension(d),
+                                                                  size(n),
+                                                                  epsilon(epsilon_),
+                                                                  gamma(gamma_) {
 
   //void * lib = dlopen("/home/hussein/projects/m2_thesis/ward_method/lib/librms.so", RTLD_LAZY);
   //func_t func = (func_t)dlsym( lib, "radius_min_circle");
@@ -75,7 +79,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       bool flag = false;
       int u = p.id;
       int u_weight = p.w;
-
+      if(u_weight == 0) continue;
 
       //float * res_ = (float *) malloc(dimension * sizeof(float));
       float * res_ = nnc.get_point(u, u_weight);
@@ -85,6 +89,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
       nnc.delete_cluster(u, u_weight);
 
       //print_array(res_, 1, dimension, "u coordinates before query ");
+      //std::cout << "u, " << u_weight << std::endl;
       auto t = nnc.query(res, u_weight);
       //std::cout << "t: " << std::get<0>(t) << ' ' << std::get<1>(t) << ' ' << std::get<2>(t) << std::endl;
 
@@ -136,6 +141,8 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         t = nnc.query(merged_cluster, merged_weight);
         dist = std::get<1>(t);
         t_weight = std::get<2>(t);
+
+        if(t_weight <= 0 || std::get<0>(t) < 0) break;
         float * nnn_pt = nnc.get_point(std::get<0>(t), t_weight);
         if(nnn_pt == nullptr) break;
         if(dist < merge_value) {
@@ -145,6 +152,7 @@ std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set
         }
       }
       if(u_weight == size) break;
+      if(u_weight == 0) break;
       if(!ok) {
         //assert(res_ != nullptr);
         int idx = nnc.add_cluster(res, u_weight);
