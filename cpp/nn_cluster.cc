@@ -5,6 +5,13 @@
 #include <iostream>
 #include <sstream>
 
+/**
+* TODO:
+* 	create a function just to query the point itself.
+*  	find a way to get the right number of data structures
+*   Add memo for the size to index
+*/
+
 template <class T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 	if(v.size() == 0) {
@@ -16,23 +23,21 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 		for(size_t i = 1; i < v.size(); ++i)
 			out << " , " << v[i];
 		out << ')';
-	return out;
+		return out;
 	}
 }
 
 inline float log_base(float num, float base) { return std::log(num) / std::log(base); }
 
 inline float nnCluster::distance(int size_a, int size_b, float dist) {
-  float coef = size_a * size_b;
-  coef = coef/(size_a + size_b);
-  return coef * dist;
+  return (size_a * size_b * dist) /(size_a + size_b);
 }
 
 nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_, const size_t &tree_number, int visited_leaf_):
       points(points_, n, d), size(n), dimension(d), epsilon(epsilon_) , gamma(gamma_), visited_leaf(visited_leaf_) {
 
 	//std::cout << "n " << n << std::endl;
-	assert(visited_leaf == visited_leaf_);
+	//assert(visited_leaf == visited_leaf_);
 	int nb_ds = (int) ceil(log_base(n, 1 + epsilon));
 	number_of_data_structure = (std::max(nb_ds, 1) )* 2 + 5;
 	std::cout << "epsilon " << epsilon << ' ' << number_of_data_structure << std::endl;
@@ -45,7 +50,6 @@ nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_
 	nn_data_structures[0].buildIndex();
 	build[0] = true;
 	for (int i = 1; i < number_of_data_structure; ++i) {
-	  //flann::Index<flann::L2<float>> tmp(flann::KDTreeIndexParams(tree_number));
 	  nn_data_structures.push_back(flann::KDTreeIndexParams(tree_number));
 	}
 }
@@ -53,7 +57,7 @@ nnCluster::nnCluster(float * points_, int n, int d, float epsilon_, float gamma_
 /**
 * output : id, distance, and weight (the true one)
 */
-std::tuple<int, float, int> nnCluster::query (const flann::Matrix<float> &query, const int query_size, bool itself) {
+std::tuple<int, float, int> nnCluster::query(const flann::Matrix<float> &query, const int query_size, bool itself) {
   float min_distance = std::numeric_limits<float>::max();
   int res = -1;
   int res_index = 0;
@@ -100,7 +104,7 @@ int nnCluster::add_cluster(const flann::Matrix<float> &cluster, int cluster_size
 int nnCluster::add_cluster(const flann::Matrix<float> &cluster, int cluster_size, int old_index, int new_index) {
 	int idx = add_cluster(cluster, cluster_size);
 	dict[{new_index, cluster_size}] = dict[{old_index, cluster_size}];
-	idx_index[{idx, new_index}] = idx_index[{idx, old_index}];
+//	idx_index[{idx, new_index}] = idx_index[{idx, old_index}];
 	return idx;
 }
 

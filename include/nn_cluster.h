@@ -106,12 +106,12 @@ private:
   std::vector<std::vector<float>> dists;
 
   // computes the ward's distance between two clusters of size_q, dise_b
-  float distance(int size_a, int size_b, float dist);
+  inline float distance(int size_a, int size_b, float dist);
 
   // maps the cluster to its weight, the cluster is uniquely determined by
   // the index of the data structure and its index.
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
   // this maps helps in having a unique ID for each cluster.
   std::unordered_map<pair_int, pair_int> dict;
-  std::unordered_map<pair_int, int> idx_index;
+//  std::unordered_map<pair_int, int> idx_index;
 };

@@ -8,12 +8,22 @@
 #include <utility>
 #include <sstream>
 
+/**
+* TODO:
+*   Remove the log_base_ funstion
+*   Remove CGAL
+*   check the precision of fpa
+*   make unchecked a field
+*   don't use tuples if possible
+*   make the removal of elments from the unordered_map faster.
+*/
+
 #define id first
 #define w second
 
 typedef std::pair<int, int> pair_int;
 
-inline std::string toString( const std::pair< size_t, size_t >& data) {
+inline std::string toString(const std::pair< size_t, size_t >& data) {
     std::ostringstream str;
     str << data.first << "," << data.second << ";";
     return str.str();
@@ -24,7 +34,7 @@ void print_array (float * array, int n, int m, std::string msg) {
   std::cout << "[" << ' ';
   for (int i = 0; i < n; ++i) {
     std::cout << '[';
-    for(int j = 0; j < m; ++j) {
+    for (int j = 0; j < m; ++j) {
       std::cout << *(array + i*m + j) << ' ';
     }
     std::cout << ']' << ' ';
@@ -32,6 +42,7 @@ void print_array (float * array, int n, int m, std::string msg) {
   std::cout << "]" << '\n';
 }
 
+// remove this one
 inline float log_base_(double num, double base) {
   return log(num)/ log(base);
 }
