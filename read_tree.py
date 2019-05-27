@@ -175,27 +175,27 @@ epsilons = [800]
 d = 20
 k = 10
 ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-with open('ward_accuracy7.txt', 'w') as f:
-    for e in epsilons:
-        for t in trees:
-            for l in leaves:
-                for i in range(10000, 20000, 1000):
-                    for j in range(1):
-                        if i == 18000:
-                            j = 1
-                        data_file = './data/data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '.in'
-                        data = readFILE(data_file)
-                        start = time.time()
-                        clustering = ward.fit(data)
-                        end = time.time()
-                        labels = clustering.labels_
-                        res_file = 'data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '_' + str(e) + '_' + str(t) + '_' + str(l) + '.out'
-                        T = read_file(res_file)
-                        clust = clusters(T, k);
-                        acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
-                        print(str(end - start))
-                        f.write(str(end - start) + ' ' + str(acc) + ' ')
-                    f.write('\n')
+# with open('ward_accuracy7.txt', 'w') as f:
+#     for e in epsilons:
+#         for t in trees:
+#             for l in leaves:
+#                 for i in range(10000, 20000, 1000):
+#                     for j in range(1):
+#                         if i == 18000:
+#                             j = 1
+#                         data_file = './data/data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '.in'
+#                         data = readFILE(data_file)
+#                         start = time.time()
+#                         clustering = ward.fit(data)
+#                         end = time.time()
+#                         labels = clustering.labels_
+#                         res_file = 'data' + str(i) + '_' + str(j) + '_' + str(d) + '_' + str(k) + '_' + str(e) + '_' + str(t) + '_' + str(l) + '.out'
+#                         T = read_file(res_file)
+#                         clust = clusters(T, k);
+#                         acc = normalized_mutual_info_score(convert(clust, len(labels)), labels)
+#                         print(str(end - start))
+#                         f.write(str(end - start) + ' ' + str(acc) + ' ')
+#                     f.write('\n')
 
 #
 #data = readFILE("./data/iris.in")
@@ -207,3 +207,5 @@ with open('ward_accuracy7.txt', 'w') as f:
 # T = read_file(file_name)
 # clust = clusters(T, k)
 # print(normalized_mutual_info_score(convert(clust, len(labels)), labels))
+data, n, labels, k = get_dataset('boston')
+print(k)

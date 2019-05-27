@@ -189,21 +189,14 @@ void the_big_exp() {
   std::vector<int> trees = {2};
   std::vector<int> leaves = {10};
   std::vector<float> epsilons = {8};
-  //data5000_8_100_10_
   for (auto&& e: epsilons) {
-  //  int e = 7;
     for (auto&& tr: trees) {
-    //  int tr = 4;
       for(auto&& l: leaves) {
-        // int l = 1;
          for (int i = 10000; i < 20000; i += 1000) {
-        //  int i = 13000;
-
             out << e << ' ' << tr << ' ' << l << ' ' << i << ' ' << d;
             for (int j = 0; j < 1; ++j) {
 
-              if(i == 18000) {j = 1;}
-          //    int j = 7;
+        //      if(i == 18000) {j = 1;}
               std::string data_name = "data" + std::to_string(i) + '_' + std::to_string(j) + '_' + std::to_string(d) + '_' + std::to_string(k);
               std::string file_name = "./data/" + data_name + ".in";
               float epsilon = e * 100;
@@ -237,7 +230,7 @@ float logb(float num, float base) {
 int main () {
   //test_data_structure();
   //test_HC();
-  the_big_exp();
+  //the_big_exp();
   return 0;
 }
 
