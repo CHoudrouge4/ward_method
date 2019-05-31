@@ -11,6 +11,7 @@
 #include <time.h>
 #include <limits>
 #include <cmath>
+#include "test.h"
 
 clock_t start;
 clock_t current;
@@ -227,10 +228,32 @@ float logb(float num, float base) {
   return std::log10(num)/ std::log10(base);
 }
 
+void test_power_log(const int n, const float epsilon) {
+  int number_of_ds = floor(logb(n , 1 + epsilon)) + 1;
+  for (int i = 1; i < n; ++i)  {
+    int pow_res = power(1 + epsilon, i);
+    int log_res = floor(logb(i , 1 + epsilon));
+    std::cout << n << ' ' << i << ' ' << log_res << '/' << number_of_ds << '\n';
+    assert(log_res >= 0);
+    assert(log_res < number_of_ds);
+  }
+}
+
+void test_power_log_n(const float epsilon) {
+  for(int n = 1; n < 10000; ++n) test_power_log(n, epsilon);
+}
+
 int main () {
   //test_data_structure();
   //test_HC();
   //the_big_exp();
+  //int n = 100;
+  float epsilon = 0.5f;
+  //test_power_log(n, epsilon);
+  for (int i = 0; i < 100; ++i) {
+    epsilon *= 2;
+    test_power_log_n(epsilon);
+  }
   return 0;
 }
 
