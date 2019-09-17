@@ -17,15 +17,15 @@ typedef std::pair<int, int> pair_int;
 class hierarchical_clustering {
 
 private:
-  int dimension;
-  int size;
-  float epsilon;
-  float gamma;
-  double max_dist;
-  double min_dist;
-  double beta;
+  int dimension; // store the dimension of the data
+  int size;      // store the size of the data
+  float epsilon; // epsilion as it is stated in the main paper.
+  float gamma;   // essentially created to ensure the approximation of the NN
+  double max_dist; // the maximum distance between any two points in the dataset
+  double min_dist; // the minimum distance between any two points in the dataset
+  double beta;     // size * max_dist / min_dist
 
-  nnCluster nnc;
+  nnCluster nnc;   // a nearest neighbour data structure for clusters
 
   bool stop = false;
 

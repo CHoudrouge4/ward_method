@@ -8,6 +8,10 @@
 
 typedef std::pair<int, int> pair_int;
 
+/**
+* A hash function for pair of integer.
+*
+*/
 namespace std {
   template <>
   struct hash<pair_int> {
@@ -18,6 +22,10 @@ namespace std {
   };
 }
 
+/**
+* Struct that implements a hash function for pair of integers
+*
+*/
 struct pairhash {
 private:
   const size_t num = 65537;
@@ -113,5 +121,5 @@ private:
   std::unordered_map<std::pair<int, int>, int> cluster_weight;
   // this maps helps in having a unique ID for each cluster.
   std::unordered_map<pair_int, pair_int> dict;
-//  std::unordered_map<pair_int, int> idx_index;
+  // std::unordered_map<pair_int, int> idx_index;
 };

@@ -29,6 +29,10 @@ inline std::string toString(const std::pair< size_t, size_t >& data) {
     return str.str();
 }
 
+/**
+* Print a c array initially creted to help in the dubugging,
+* need to move it to a seperate file
+*/
 void print_array (float * array, int n, int m, std::string msg) {
   std::cout << msg << ' ';
   std::cout << "[" << ' ';
@@ -71,10 +75,16 @@ hierarchical_clustering::hierarchical_clustering(float * data, int n, int d, flo
   to_erase.reserve(n);
 }
 
+/**
+* this function takes the centroid of two clusters and computes the new centroid
+* based on the following formula.
+* new_centroid = ((size_a * mu_a) + (size_b * mu_b))/(size_a + size_b).
+*
+*/
 inline float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int size_a, int size_b) {
   float den = size_a + size_b;
-  float coeff_a = size_a/den;
-  float coeff_b = size_b/den;
+  float coeff_a = size_a / den; // make sure if this is efficient
+  float coeff_b = size_b / den;
   float * res = (float *) malloc(dimension * sizeof(float));
   for (int i = 0; i < dimension; ++i) {
     *(res + i) = coeff_a * ( * (mu_a + i)) + coeff_b * ( * (mu_b + i));
@@ -83,7 +93,7 @@ inline float * hierarchical_clustering::merge(float * mu_a, float * mu_b, int si
 }
 
 std::unordered_set<pair_int>  hierarchical_clustering::helper(std::unordered_set<pair_int> &mp, float merge_value) {
-  std::unordered_set <pair_int> unchecked;
+  std::unordered_set <pair_int> unchecked; // this one should be placed maybe in different place, maybe it should be in the fields
   for (auto&& p : mp) {
     if(existed[p]) {
       bool ok = false;

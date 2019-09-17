@@ -1,3 +1,8 @@
+/**
+* This file is for testing
+*
+*/
+
 #include <iostream>
 #include "flann/flann.hpp"
 #include "flann/io/hdf5.h"
@@ -240,7 +245,51 @@ void test_power_log(const int n, const float epsilon) {
 }
 
 void test_power_log_n(const float epsilon) {
-  for(int n = 1; n < 10000; ++n) test_power_log(n, epsilon);
+  for (int n = 1; n < 10000; ++n) test_power_log(n, epsilon);
+}
+
+void test_news_group() {
+  int n;
+  int d;
+  int k;
+  std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
+  std::vector<int> trees = {2};
+  std::vector<int> leaves = {10};
+  std::vector<float> epsilons = {8};
+  for (auto&& e: epsilons) {
+    for (auto&& tr: trees) {
+      for (auto&& l: leaves) {
+        out << e << ' ' << tr << ' ' << l << ' ' << n << ' ' << d;
+        std::string data_name = "data" + std::to_string(n) + '_' + std::to_string(d) + '_' + std::to_string(k);
+
+        std::string file_name = "./data/news.in";
+
+        float epsilon = e * 100;
+
+        std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
+
+        std::cout << output_file << std::endl;
+
+        float * points = read_file(file_name, n, d);
+
+        //std::cout << "done reading" << std::endl;
+        hierarchical_clustering hc(points, n, d, e, 0.9, tr, l);
+        //std::cout << "done initializing" << std::endl;
+
+        // building HC
+        clock_t start = clock();
+        hc.build_hierarchy();
+        clock_t end = clock();
+
+        out << ' ' << (float)(end - start)/CLOCKS_PER_SEC;
+        std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
+        hc.print_file(output_file);
+
+        out << std::endl;
+      }
+    }
+  }
+  out.close();
 }
 
 int main () {
@@ -248,17 +297,16 @@ int main () {
   //test_HC();
   //the_big_exp();
   //int n = 100;
-  float epsilon = 0.5f;
-  //test_power_log(n, epsilon);
-  for (int i = 0; i < 100; ++i) {
-    epsilon *= 2;
-    test_power_log_n(epsilon);
-  }
-  return 0;
+  // float epsilon = 0.5f;
+  // //test_power_log(n, epsilon);
+  // for (int i = 0; i < 100; ++i) {
+  //   epsilon *= 2;
+  //   test_power_log_n(epsilon);
+  // }
+  // return 0;
 }
 
 /**
-
 flann::Matrix<float> POINTS(points, n, d);
 const flann::AutotunedIndexParams params(0.8);
 std::vector<flann::AutotunedIndex<flann::L2<float>> *> nn_data_structures;
@@ -274,5 +322,4 @@ std::vector<std::vector<size_t>> idx;
 nn_data_structures[0]->knnSearch(q, idx, dist, 1, flann::SearchParams(32));
 auto p = nn_data_structures[0]->getPoint(0);
 std::cout << p[0] << std::endl;
-
 **/
