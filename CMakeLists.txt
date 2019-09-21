@@ -5,7 +5,7 @@ project(wards)
 set (CMAKE_CXX_STANDARD 11)
 
 include_directories(include)
-include_directories("/home/hussein/projects/flann/flann/src/cpp/")
+include_directories("../flann/src/cpp/")
 include_directories("/usr/include/hdf5/serial")
 
 file(GLOB SOURCES "cpp/*.cc")
@@ -14,4 +14,4 @@ set(CMAKE_CXX_FLAGS " -Wextra -g -O3")
 
 add_executable(wards.exe ${SOURCES})
 
-target_link_libraries(wards.exe -lgtest -lgtest_main -llz4 -lhdf5 /home/hussein/projects/m2_thesis/ward_method/lib/librms.so -ldl)
+target_link_libraries(wards.exe -llz4 -ldl)

@@ -249,6 +249,7 @@ void test_power_log_n(const float epsilon) {
 }
 
 void test_news_group() {
+  std::cout << "testing news group" << std::endl;
   int n;
   int d;
   int k;
@@ -303,7 +304,9 @@ int main () {
   //   epsilon *= 2;
   //   test_power_log_n(epsilon);
   // }
-  // return 0;
+  //
+  test_news_group();
+  return 0;
 }
 
 /**
