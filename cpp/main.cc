@@ -252,7 +252,12 @@ void test_news_group() {
   std::cout << "testing news group" << std::endl;
   int n;
   int d;
- 
+
+
+  // read the file name 
+  std::string file_name = "./news.in";
+  float * points = read_file(file_name, n, d);
+
   std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
   std::vector<int> trees = {2};
   std::vector<int> leaves = {10};
@@ -261,18 +266,8 @@ void test_news_group() {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
         out << e << ' ' << tr << ' ' << l << ' ' << n << ' ' << d;
-        std::string data_name = "data" + std::to_string(n) + '_' + std::to_string(d);
-
-        std::string file_name = "./data/news.in";
-
-        float epsilon = e * 100;
-
-        std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
-
-        std::cout << output_file << std::endl;
-
-        float * points = read_file(file_name, n, d);
-
+       
+      
         //std::cout << "done reading" << std::endl;
         hierarchical_clustering hc(points, n, d, e, 0.9, tr, l);
         //std::cout << "done initializing" << std::endl;
@@ -284,9 +279,14 @@ void test_news_group() {
 
         out << ' ' << (float)(end - start)/CLOCKS_PER_SEC;
         std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
-        hc.print_file(output_file);
-
-        out << std::endl;
+       
+       
+	std::string data_name = "news" + std::to_string(n) + '_' + std::to_string(d);
+        float epsilon = e * 100;
+        std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
+        std::cout << output_file << std::endl;
+	hc.print_file(output_file);
+	out << std::endl;
       }
     }
   }
