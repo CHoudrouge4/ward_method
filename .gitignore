@@ -28,7 +28,6 @@
 
 # Executables
 *.exe
-*.out
 *.app
 
 *.xml
@@ -49,6 +48,6 @@ install_manifest.txt
 compile_commands.json
 .ipynb_checkpoints
 
-*.out
+
 *.ipynb
 wardsexp.ipynb
