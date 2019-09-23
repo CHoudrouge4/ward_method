@@ -252,7 +252,7 @@ void test_news_group() {
   std::cout << "testing news group" << std::endl;
   int n;
   int d;
-  int k;
+ 
   std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
   std::vector<int> trees = {2};
   std::vector<int> leaves = {10};
@@ -261,7 +261,7 @@ void test_news_group() {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
         out << e << ' ' << tr << ' ' << l << ' ' << n << ' ' << d;
-        std::string data_name = "data" + std::to_string(n) + '_' + std::to_string(d) + '_' + std::to_string(k);
+        std::string data_name = "data" + std::to_string(n) + '_' + std::to_string(d);
 
         std::string file_name = "./data/news.in";
 
