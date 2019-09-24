@@ -137,6 +137,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension)
         T = read_file(file_name)
         print (k)
         clust = clusters(T, k)
+        print (len(clust))
         file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
         ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
         clustering = ward.fit(data)
@@ -230,4 +231,4 @@ def readFILE(file_name):
 #data, n, labels, k = get_dataset('boston')
 #print(k)
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
-approx_vs_ward(800, 10, 2, 'news11314', 100)
+approx_vs_ward(50, 128, 16, 'news11314', 10)

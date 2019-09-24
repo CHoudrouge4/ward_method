@@ -253,21 +253,19 @@ void test_news_group() {
   int n;
   int d;
 
-
   // read the file name 
-  std::string file_name = "./news.in";
+  std::string file_name = "./news_1000.in";
   float * points = read_file(file_name, n, d);
 
   std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
-  std::vector<int> trees = {2};
-  std::vector<int> leaves = {10};
-  std::vector<float> epsilons = {8};
+  std::vector<int> trees = {16};
+  std::vector<int> leaves = {128};
+  std::vector<float> epsilons = {0.5};
   for (auto&& e: epsilons) {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
         out << e << ' ' << tr << ' ' << l << ' ' << n << ' ' << d;
-       
-      
+           
         //std::cout << "done reading" << std::endl;
         hierarchical_clustering hc(points, n, d, e, 0.9, tr, l);
         //std::cout << "done initializing" << std::endl;

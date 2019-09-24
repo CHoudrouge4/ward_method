@@ -4,7 +4,7 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
 
-pca = PCA(n_components=1000)
+pca = PCA(n_components=10)
 
 newsgroups_train = fetch_20newsgroups(subset='train')
 
