@@ -140,6 +140,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension)
         print (len(clust))
         file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
         ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
+        data = loadtxt('news_1000.in', skiprows = 1)
         clustering = ward.fit(data)
         clust = clustering.labels_
         file.write('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
