@@ -3,7 +3,7 @@ from sklearn import datasets
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import PCA
-
+from sklearn import *
 
 def get_news_group_pca(dimension):
     pca = PCA(n_components=dimension)

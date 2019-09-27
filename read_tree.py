@@ -132,7 +132,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension)
     output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
     with open(output_file, 'w') as file:
         file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
-        data, n, labels, k = get_news_group(dimension)
+        data, n, labels, k = get_dataset('iris')
         file_name = './' + name + '_' + str(dimension) + '_' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
         T = read_file(file_name)
         print (k)
@@ -140,7 +140,8 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension)
         print (len(clust))
         file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
         ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-        data = loadtxt('news_1000.in', skiprows = 1)
+        #data = loadtxt('news_1000.in', skiprows = 1)
+        print (data.shape)
         clustering = ward.fit(data)
         clust = clustering.labels_
         file.write('std_ward ' + str(normalized_mutual_info_score(clust, labels)) + '\n')
@@ -232,4 +233,14 @@ def readFILE(file_name):
 #data, n, labels, k = get_dataset('boston')
 #print(k)
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
-approx_vs_ward(50, 128, 16, 'news11314', 10)
+approx_vs_ward(400, 128, 16, 'iris150', 4)
+
+
+
+
+#_, _, labels, _ = get_news_group(2)
+
+
+#for u in labels:
+#    print (u)
+

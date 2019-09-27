@@ -254,13 +254,13 @@ void test_news_group() {
   int d;
 
   // read the file name 
-  std::string file_name = "./news_1000.in";
+  std::string file_name = "./iris.in";
   float * points = read_file(file_name, n, d);
 
   std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
   std::vector<int> trees = {16};
   std::vector<int> leaves = {128};
-  std::vector<float> epsilons = {0.5};
+  std::vector<float> epsilons = {4};
   for (auto&& e: epsilons) {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
@@ -279,7 +279,7 @@ void test_news_group() {
         std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
        
        
-	std::string data_name = "news" + std::to_string(n) + '_' + std::to_string(d);
+	std::string data_name = "iris" + std::to_string(n) + '_' + std::to_string(d);
         float epsilon = e * 100;
         std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
         std::cout << output_file << std::endl;

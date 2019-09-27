@@ -42,7 +42,7 @@ def get_dataset(name):
 
 #data_name = ["iris", "cancer", "digits", "boston", "KDD"]
 
-data_name = ["newsgroup"]
+data_name = ["iris"]
 for name in data_name:
     print(name)
     x, _, _, _ = get_dataset(name)
