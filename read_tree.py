@@ -7,7 +7,7 @@ from numpy import *
 import sys
 sys.setrecursionlimit(12000)
 
-def get_news_group(dimension):
+def get_news_group_pca(dimension):
     from sklearn.datasets import fetch_20newsgroups
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.decomposition import PCA
@@ -25,6 +25,18 @@ def get_news_group(dimension):
     Y = pca.transform(train_data)
     n_elements = len(unique(train_labels))
     return Y, n_elements, train_labels, len(set(train_labels))
+
+def get_news_group(size):
+    from sklearn.datasets import fetch_20newsgroups
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    newsgroups_train = fetch_20newsgroups(subset='train')
+    vectorizer = TfidfVectorizer(min_df=0.01, max_df=0.95)
+    train_data = vectorizer.fit_transform(newsgroups_train.data)
+    train_data = train_data.todense()
+    train_labels = newsgroups_train.target;
+    # initialise PCA with n_components = dimension
+    n_elements = len(unique(train_labels[0:size]))
+    return train_data[0:size, :] n_elements, train_labels[0:size], len(set(train_labels[0:size]))
 
 def read_file(filename):
     f = open(filename, "r")
@@ -124,7 +136,7 @@ def convert(clusters, n):
     return clustering_vect
 
 
-def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension):
+def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension, size):
 
 #print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 # #eps = [25, 50, 75, 85, 95, 200, 400];
@@ -132,7 +144,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension)
     output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
     with open(output_file, 'w') as file:
         file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
-        data, n, labels, k = get_dataset('iris')
+        data, n, labels, k = get_news_group(size)
         file_name = './' + name + '_' + str(dimension) + '_' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
         T = read_file(file_name)
         print (k)
@@ -233,7 +245,7 @@ def readFILE(file_name):
 #data, n, labels, k = get_dataset('boston')
 #print(k)
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
-approx_vs_ward(400, 128, 16, 'iris150', 4)
+approx_vs_ward(400, 128, 16, 'iris150', 4, size)
 
 
 
@@ -243,4 +255,3 @@ approx_vs_ward(400, 128, 16, 'iris150', 4)
 
 #for u in labels:
 #    print (u)
-
