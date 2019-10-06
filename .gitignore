@@ -1,4 +1,5 @@
 # Prerequisites
+*.in
 *.swp
 *.d
 

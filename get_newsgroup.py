@@ -23,8 +23,16 @@ def get_news_group(size):
     train_data = train_data.todense()
     print(train_data.shape)
     Y = train_data[0:size, :]
-    savetxt("news_" + str(size) + ".in", , delimiter=' ')
+    _, d = Y.shape
+    savetxt("news_" + str(size) + ".in", Y, delimiter=' ', comments='',  header=str(size) + ' ' + str(d))
 
-get_news_group(100)
+
+def generate_sizes():
+    sizes = 100
+    while sizes < 11314:
+        get_news_group(sizes)
+        sizes = sizes * 2
+
+generate_sizes()
 
 #get_news_group_pca(2)

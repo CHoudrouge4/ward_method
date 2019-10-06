@@ -36,7 +36,7 @@ def get_news_group(size):
     train_labels = newsgroups_train.target;
     # initialise PCA with n_components = dimension
     n_elements = len(unique(train_labels[0:size]))
-    return train_data[0:size, :] n_elements, train_labels[0:size], len(set(train_labels[0:size]))
+    return train_data[0:size, :], n_elements, train_labels[0:size], len(set(train_labels[0:size]))
 
 def read_file(filename):
     f = open(filename, "r")
@@ -142,8 +142,8 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension,
 # #eps = [25, 50, 75, 85, 95, 200, 400];
 
     output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
-    with open(output_file, 'w') as file:
-        file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + '\n')
+    with open(output_file, 'a') as file:
+        file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + ' ' + str(size) + ' ' + str(dimension) +'\n')
         data, n, labels, k = get_news_group(size)
         file_name = './' + name + '_' + str(dimension) + '_' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + ".out"
         T = read_file(file_name)
@@ -152,7 +152,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension,
         print (len(clust))
         file.write('Algo ' + str(normalized_mutual_info_score(convert(clust, len(labels)), labels)) + '\n')
         ward = AgglomerativeClustering(n_clusters=k, linkage='ward', connectivity=None)
-        #data = loadtxt('news_1000.in', skiprows = 1)
+        data = loadtxt('news_' + str(size) + '.in', skiprows = 1)
         print (data.shape)
         clustering = ward.fit(data)
         clust = clustering.labels_
@@ -245,10 +245,13 @@ def readFILE(file_name):
 #data, n, labels, k = get_dataset('boston')
 #print(k)
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
-approx_vs_ward(400, 128, 16, 'iris150', 4, size)
 
 
 
+sizes = 100
+while sizes < 11314:
+    approx_vs_ward(100, 128, 25, 'news' + str(sizes), 2164, sizes)
+    sizes = sizes * 2
 
 #_, _, labels, _ = get_news_group(2)
 

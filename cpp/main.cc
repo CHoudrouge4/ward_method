@@ -248,19 +248,19 @@ void test_power_log_n(const float epsilon) {
   for (int n = 1; n < 10000; ++n) test_power_log(n, epsilon);
 }
 
-void test_news_group() {
+void test_news_group(std::string file_name) {
   std::cout << "testing news group" << std::endl;
   int n;
   int d;
 
   // read the file name 
-  std::string file_name = "./iris.in";
+ // std::string file_name = "./news_1000.in";
   float * points = read_file(file_name, n, d);
 
   std::ofstream out("newsgroup_perfs.txt", std::ios_base::app);
-  std::vector<int> trees = {16};
+  std::vector<int> trees = {25};
   std::vector<int> leaves = {128};
-  std::vector<float> epsilons = {4};
+  std::vector<float> epsilons = {1};
   for (auto&& e: epsilons) {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
@@ -279,16 +279,25 @@ void test_news_group() {
         std::cout << (float)(end - start)/CLOCKS_PER_SEC << std::endl;
        
        
-	std::string data_name = "iris" + std::to_string(n) + '_' + std::to_string(d);
+		std::string data_name = "news" + std::to_string(n) + '_' + std::to_string(d);
         float epsilon = e * 100;
         std::string output_file = data_name + '_' + std::to_string((int)floor((epsilon))) + "_" + std::to_string(tr) + "_"  + std::to_string(l) + ".out";
         std::cout << output_file << std::endl;
-	hc.print_file(output_file);
-	out << std::endl;
+		hc.print_file(output_file);
+		out << std::endl;
       }
     }
   }
   out.close();
+}
+
+void test_news_group_several_sizes() {
+	int sizes = 100;
+	while (sizes < 11314) {
+		std::string file_name = "./news_" + std::to_string(sizes) + ".in";
+		test_news_group(file_name);
+		sizes *= 2;
+	}
 }
 
 int main () {
@@ -303,8 +312,9 @@ int main () {
   //   test_power_log_n(epsilon);
   // }
   //
-  test_news_group();
-  return 0;
+  //test_news_group();
+  	test_news_group_several_sizes();
+	return 0;
 }
 
 /**
