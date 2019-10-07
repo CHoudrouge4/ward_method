@@ -15,7 +15,7 @@ typedef std::pair<int, int> pair_int;
 namespace std {
   template <>
   struct hash<pair_int> {
-    const size_t num = 65537;
+    const size_t num = 65539;
     inline size_t operator()(const std::pair<int, int> &x) const {
         return (x.first * num) ^ x.second;
     }

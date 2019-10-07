@@ -138,7 +138,7 @@ def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension,
 #print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 # #eps = [25, 50, 75, 85, 95, 200, 400];
 
-    output_file = 'result' + str(e) + '_' + str(numebr_of_trees) + '_' + str(number_of_visited_leafs) + '.txt'
+    output_file = 'result_epsilons.txt'
     with open(output_file, 'a') as file:
         file.write('epsilon 0.' + str(e) + ' ' + str(numebr_of_trees) + ' ' + str(number_of_visited_leafs) + ' ' + str(size) + ' ' + str(dimension) +'\n')
         data, n, labels, k = get_news_group(size)
@@ -254,8 +254,25 @@ def tree_sizes_perf():
     sizes = 11314
     tree = [1, 4, 8, 12, 16, 20, 24, 28, 32]
     for t in tree:
-        approx_vs_ward(100, 128, t, 'news' + str(sizes), 2164, sizes)
+        approx_vs_ward(200, 128, t, 'news' + str(sizes), 2164, sizes)
 
+def leaves_perf():
+    sizes = 11314
+    leaves = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    for l in leaves:
+        approx_vs_ward(200, l, 16, 'news' + str(sizes), 2164, sizes)
+
+def epsilons_perf():
+    sizes = 11314
+    epsilons = [50, 100, 200, 400, 800, 1000]
+    for e in epsilons:
+        approx_vs_ward(e, 32, 16, 'news' + str(sizes), 2164, sizes)
+
+
+epsilons_perf()
+#leaves_perf()
+
+#tree_sizes_perf()
 #_, _, labels, _ = get_news_group(2)
 #for u in labels:
 #    print (u)

@@ -33,6 +33,7 @@ def generate_sizes():
         get_news_group(sizes)
         sizes = sizes * 2
 
-generate_sizes()
+get_news_group(11314)
 
+#generate_sizes()
 #get_news_group_pca(2)

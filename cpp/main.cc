@@ -254,17 +254,17 @@ void test_news_group(std::string file_name) {
   int d;
 
   // std::string file_name = "./news_1000.in";
-  float * points = read_file(file_name, n, d);
-
-  std::ofstream out("trees_newsgroup_perfs.txt", std::ios_base::app);
-  std::vector<int> trees = {1, 4, 8, 12, 16, 20, 24, 28, 32};
-  std::vector<int> leaves = {128};
-  std::vector<float> epsilons = {1};
+  std::ofstream out("epsilons_newsgroup_perfs.txt", std::ios_base::app);
+  std::vector<int> trees = {16};
+  std::vector<int> leaves = {32};
+  std::vector<float> epsilons = {10};
   for (auto&& e: epsilons) {
     for (auto&& tr: trees) {
       for (auto&& l: leaves) {
         out << e << ' ' << tr << ' ' << l << ' ' << n << ' ' << d;
 
+	float * points = read_file(file_name, n, d);
+	std::cout << n << ' ' << d << std::endl;
         hierarchical_clustering hc(points, n, d, e, 0.9, tr, l);
 
         // building HC
@@ -309,7 +309,7 @@ int main () {
   // }
   //
   std::string file_name = "./news_11314.in";
-  test_news_group();
+  test_news_group(file_name);
   //test_news_group_several_sizes();
 	return 0;
 }
