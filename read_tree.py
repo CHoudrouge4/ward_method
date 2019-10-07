@@ -120,10 +120,8 @@ def get_dataset(name):
         n_elements = len(unique(labels))
     return data, n_elements, labels, len(set(labels))
 
-
 # example
 # t = [[0, -2], [1, -1], [2, -1], [3, -1], [4, -1], [0, 1], [2, 3], [5, 6], [7, 4]]
-
 # print(clusters(t, 3))
 #from sklearn.datasets import load_iris
 from sklearn.metrics.cluster import normalized_mutual_info_score
@@ -137,7 +135,6 @@ def convert(clusters, n):
 
 
 def approx_vs_ward(e, number_of_visited_leafs, numebr_of_trees, name, dimension, size):
-
 #print("epsilon ", "0." + str(epsilon), numebr_of_trees, number_of_visited_leafs)
 # #eps = [25, 50, 75, 85, 95, 200, 400];
 
@@ -247,14 +244,18 @@ def readFILE(file_name):
 ## e psilon, number_of_visited_leafs, number_of_trees, dimension
 
 
+def exp_sizes_acc():
+    sizes = 100
+    while sizes < 11314:
+        approx_vs_ward(100, 128, 25, 'news' + str(sizes), 2164, sizes)
+        sizes = sizes * 2
 
-sizes = 100
-while sizes < 11314:
-    approx_vs_ward(100, 128, 25, 'news' + str(sizes), 2164, sizes)
-    sizes = sizes * 2
+def tree_sizes_perf():
+    sizes = 11314
+    tree = [1, 4, 8, 12, 16, 20, 24, 28, 32]
+    for t in tree:
+        approx_vs_ward(100, 128, t, 'news' + str(sizes), 2164, sizes)
 
 #_, _, labels, _ = get_news_group(2)
-
-
 #for u in labels:
 #    print (u)
